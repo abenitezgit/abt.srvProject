@@ -12,6 +12,33 @@ import org.json.JSONObject;
 
 public class Rutinas {
 	
+	public boolean isWhitespace(String s) {
+	    int length = s.length();
+	    if (length > 0) {
+	        for (int start = 0, middle = length / 2, end = length - 1; start <= middle; start++, end--) {
+	            if (s.charAt(start) > ' ' || s.charAt(end) > ' ') {
+	                return false;
+	            }
+	        }
+	        return true;
+	    }
+	    return false;
+	}
+	
+	public boolean isNull(String s) {
+	    return s == null ;
+
+	}
+	
+	public boolean isNullOrWhitespace(String s) {
+	    return s == null || isWhitespace(s);
+
+	}
+	
+	public boolean isNullOrEmpty(String s) {
+	    return s == null || s.length() == 0;
+	}
+	
 	public String getLoggerLevel(Logger logger) throws Exception {
 		if (logger.isDebugEnabled()) {
 			return "DEBUG";
@@ -117,6 +144,9 @@ public class Rutinas {
             case 60:
                     errMesg = "TX no autorizada";
                     break;
+            case 61:
+                errMesg = "Request no reconocido";
+                break;
             default: 
                     errMesg = "error desconocido";
                     break;

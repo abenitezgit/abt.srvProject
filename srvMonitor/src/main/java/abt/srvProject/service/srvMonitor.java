@@ -26,7 +26,7 @@ public class srvMonitor extends Thread{
 	public srvMonitor(GlobalArea m) {
 		try {
 			gDatos = m;
-			String pathFileLog4j=gDatos.getServicio().getLog4jPath()+gDatos.getServicio().getLog4jName();
+			String pathFileLog4j=gDatos.getInfo().getPathProperties()+"/"+gDatos.getInfo().getLogProperties();
 			if (mylib.fileExist(pathFileLog4j)) {
 				PropertyConfigurator.configure(pathFileLog4j);
 				logger.info("Constructor iniciado");
@@ -51,9 +51,9 @@ public class srvMonitor extends Thread{
     @Override
     public void run() {
     	if (init) {
-	        Timer timerMain = new Timer("thSrvMonitor");
-	        timerMain.schedule(new mainTask(), 5000, gDatos.getServicio().getTxpMain()	);
-	        logger.info("Servicio "+MODULE+" agendado cada: "+gDatos.getServicio().getTxpMain()/1000+ " segundos");
+	        Timer timerMain = new Timer(MODULE);
+	        timerMain.schedule(new mainTask(), 5000, gDatos.getInfo().getTxpMain()	);
+	        logger.info("Servicio "+MODULE+" agendado cada: "+gDatos.getInfo().getTxpMain()/1000+ " segundos");
     	} else {
     		mylib.console(1,"Abortando servicio por error en constructor "+MODULE);
     	}
@@ -68,7 +68,7 @@ public class srvMonitor extends Thread{
         public mainTask() {
         	module.setName(MODULE);
         	module.setType("TIMERTASK");
-        	module.setTxp(gDatos.getServicio().getTxpMain());
+        	module.setTxp(gDatos.getInfo().getTxpMain());
         }
         
         public void run() {
@@ -76,7 +76,7 @@ public class srvMonitor extends Thread{
         		/**
         		 * Inicia ciclo del Modulo
         		 */
-        		logger.info("Iniciando ciclo srvMonitor");
+        		logger.info("Iniciando ciclo "+MODULE);
         		module.setLastFecIni(mylib.getDateNow());
         		gDatos.getMapModule().put(MODULE, module);
         		
@@ -109,18 +109,19 @@ public class srvMonitor extends Thread{
         		/**
         		 * Finalizando ciclo del Modulo
         		 */
-        		logger.info("Terminado ciclo srvMonitor");
+        		logger.info("Terminado ciclo "+MODULE);
         		module.setLastFecFin(mylib.getDateNow());
         		gDatos.getMapModule().put(MODULE, module);
 
         	} catch (Exception e) {
-        		logger.error("Error inesperado srvMonitor ("+e.getMessage()+")");
+        		logger.error("Error inesperado "+MODULE+" ("+e.getMessage()+")");
         	}
         }
         
         private void actualizaStatusThread() {
             
         	mapThread.put("srvListener", false);
+        	mapThread.put("srvSync", false);
             
             //Thread tr = Thread.currentThread();
             Set<Thread> threadSet = Thread.getAllStackTraces().keySet();
@@ -129,6 +130,9 @@ public class srvMonitor extends Thread{
                 //System.out.println("Thread :"+t+":"+"state:"+t.getState()+" ID: "+t.getId());
                 if (t.getName().equals("srvListener")) {
                 	mapThread.replace("srvListener", true);
+                }
+                if (t.getName().equals("srvSync")) {
+                	mapThread.replace("srvSync", true);
                 }
             }
             

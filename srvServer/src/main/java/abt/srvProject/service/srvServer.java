@@ -26,7 +26,7 @@ public class srvServer extends Thread{
 	public srvServer(GlobalArea m) {
 		try {
 			gDatos = m;
-			String pathFileLog4j=gDatos.getServicio().getLog4jPath()+gDatos.getServicio().getLog4jName();
+			String pathFileLog4j=gDatos.getInfo().getPathProperties()+"/"+gDatos.getInfo().getLogProperties();
 			if (mylib.fileExist(pathFileLog4j)) {
 				PropertyConfigurator.configure(pathFileLog4j);
 				logger.info("Constructor iniciado");
@@ -52,8 +52,8 @@ public class srvServer extends Thread{
     public void run() {
     	if (init) {
 	        Timer timerMain = new Timer("thSrvServer");
-	        timerMain.schedule(new mainTask(), 5000, gDatos.getServicio().getTxpMain()	);
-	        logger.info("Servicio "+MODULE+" agendado cada: "+gDatos.getServicio().getTxpMain()/1000+ " segundos");
+	        timerMain.schedule(new mainTask(), 5000, gDatos.getInfo().getTxpMain()	);
+	        logger.info("Servicio "+MODULE+" agendado cada: "+gDatos.getInfo().getTxpMain()/1000+ " segundos");
     	} else {
     		mylib.console(1,"Abortando servicio por error en constructor "+MODULE);
     	}
@@ -68,7 +68,7 @@ public class srvServer extends Thread{
         public mainTask() {
         	module.setName(MODULE);
         	module.setType("TIMERTASK");
-        	module.setTxp(gDatos.getServicio().getTxpMain());
+        	module.setTxp(gDatos.getInfo().getTxpMain());
         }
         
         public void run() {
@@ -121,6 +121,7 @@ public class srvServer extends Thread{
         private void actualizaStatusThread() {
             
         	mapThread.put("srvListener", false);
+        	mapThread.put("srvSync", false);
             
             //Thread tr = Thread.currentThread();
             Set<Thread> threadSet = Thread.getAllStackTraces().keySet();
@@ -129,6 +130,9 @@ public class srvServer extends Thread{
                 //System.out.println("Thread :"+t+":"+"state:"+t.getState()+" ID: "+t.getId());
                 if (t.getName().equals("srvListener")) {
                 	mapThread.replace("srvListener", true);
+                }
+                if (t.getName().equals("srvSync")) {
+                	mapThread.replace("srvSync", true);
                 }
             }
             

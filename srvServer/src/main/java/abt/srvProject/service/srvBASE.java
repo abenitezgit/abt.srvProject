@@ -21,12 +21,12 @@ public class srvBASE extends Thread{
 	public srvBASE(GlobalArea m) {
 		try {
 			gDatos = m;
-			if (mylib.fileExist(gDatos.getServicio().getPathProperties()+"log4j.properties")) {
-				PropertyConfigurator.configure(gDatos.getServicio().getPathProperties()+"log4j.properties");
+			if (mylib.fileExist(gDatos.getInfo().getPathProperties()+"log4j.properties")) {
+				PropertyConfigurator.configure(gDatos.getInfo().getPathProperties()+"log4j.properties");
 				logger.info("Constructor iniciado");
 				init = true;
 			} else {
-				mylib.console(1,"Archivo no encontrado: "+gDatos.getServicio().getPathProperties()+"log4j.properties");
+				mylib.console(1,"Archivo no encontrado: "+gDatos.getInfo().getPathProperties()+"log4j.properties");
 				init = false;
 			}
 		} catch (Exception e) {
@@ -39,8 +39,8 @@ public class srvBASE extends Thread{
     public void run() {
     	if (init) {
 	        Timer timerMain = new Timer("thSrvMonitor");
-	        timerMain.schedule(new mainTask(), 5000, gDatos.getServicio().getTxpMain()	);
-	        logger.info("Servicio "+SERVICIO+" agendado cada: "+gDatos.getServicio().getTxpMain()/1000+ " segundos");
+	        timerMain.schedule(new mainTask(), 5000, gDatos.getInfo().getTxpMain()	);
+	        logger.info("Servicio "+SERVICIO+" agendado cada: "+gDatos.getInfo().getTxpMain()/1000+ " segundos");
     	} else {
     		mylib.console(1,"Abortando servicio por error en constructor "+SERVICIO);
     	}

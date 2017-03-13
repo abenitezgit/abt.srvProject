@@ -26,7 +26,7 @@ public class Procedures {
 			mapResponse.put("mapModule", gDatos.getMapModule());
 			data = mylib.serializeObjectToJSon(mapResponse, false);
 			
-			return mylib.msgResponse("OK", data, gDatos.getServicio().getAuthKey());
+			return mylib.msgResponse("OK", data, gDatos.getInfo().getAuthKey());
 		} catch (IOException e) {
 			return mylib.sendError(99, "Error proc: getStatus ("+e.getMessage()+")");
 		}

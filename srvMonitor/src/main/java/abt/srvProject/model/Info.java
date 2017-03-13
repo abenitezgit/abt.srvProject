@@ -1,12 +1,23 @@
 package abt.srvProject.model;
 
-public class Servicio {
-	int txpMain;
-	int txtKeep;
+public class Info {
+	//Parametros del servicio
+	String srvId;
+	String srvIp;
 	int srvPort;
+	
+	//Parametros de control de tiempos de ejecucion
+	int txpMain;
+	int txpSync;
+	
+	//Parametros de recuperacion de agendas
 	int ageShowHour;
 	int ageGapMinute;
+	
+	//Parametro de intercambio de key
 	String authKey;
+	
+	//Parametros de conexion hacia Metadata
 	String dbType;
 	String dbHost;
 	int dbPort;
@@ -14,34 +25,24 @@ public class Servicio {
 	String dbPass;
 	String dbName;
 	String dbInstance;
-	String pathProperties;
-	boolean enable;
-	String log4jName;
-	String log4jPath;
 	
-	public String getLog4jPath() {
-		return log4jPath;
+	//Parametros de archivos de properties y log
+	String pathProperties;
+	String fileProperties;
+	String logProperties;
+	
+	//Getter and Setter
+	public String getSrvId() {
+		return srvId;
 	}
-	public void setLog4jPath(String log4jPath) {
-		this.log4jPath = log4jPath;
+	public void setSrvId(String srvId) {
+		this.srvId = srvId;
 	}
-	public String getLog4jName() {
-		return log4jName;
+	public String getSrvIp() {
+		return srvIp;
 	}
-	public void setLog4jName(String log4jName) {
-		this.log4jName = log4jName;
-	}
-	public boolean isEnable() {
-		return enable;
-	}
-	public void setEnable(boolean enable) {
-		this.enable = enable;
-	}
-	public String getPathProperties() {
-		return pathProperties;
-	}
-	public void setPathProperties(String pathProperties) {
-		this.pathProperties = pathProperties;
+	public void setSrvIp(String srvIp) {
+		this.srvIp = srvIp;
 	}
 	public int getSrvPort() {
 		return srvPort;
@@ -55,11 +56,11 @@ public class Servicio {
 	public void setTxpMain(int txpMain) {
 		this.txpMain = txpMain;
 	}
-	public int getTxtKeep() {
-		return txtKeep;
+	public int getTxpSync() {
+		return txpSync;
 	}
-	public void setTxtKeep(int txtKeep) {
-		this.txtKeep = txtKeep;
+	public void setTxpSync(int txpSync) {
+		this.txpSync = txpSync;
 	}
 	public int getAgeShowHour() {
 		return ageShowHour;
@@ -91,6 +92,12 @@ public class Servicio {
 	public void setDbHost(String dbHost) {
 		this.dbHost = dbHost;
 	}
+	public int getDbPort() {
+		return dbPort;
+	}
+	public void setDbPort(int dbPort) {
+		this.dbPort = dbPort;
+	}
 	public String getDbUser() {
 		return dbUser;
 	}
@@ -115,11 +122,22 @@ public class Servicio {
 	public void setDbInstance(String dbInstance) {
 		this.dbInstance = dbInstance;
 	}
-	public int getDbPort() {
-		return dbPort;
+	public String getPathProperties() {
+		return pathProperties;
 	}
-	public void setDbPort(int dbPort) {
-		this.dbPort = dbPort;
+	public void setPathProperties(String pathProperties) {
+		this.pathProperties = pathProperties;
 	}
-
+	public String getFileProperties() {
+		return fileProperties;
+	}
+	public void setFileProperties(String fileProperties) {
+		this.fileProperties = fileProperties;
+	}
+	public String getLogProperties() {
+		return logProperties;
+	}
+	public void setLogProperties(String logProperties) {
+		this.logProperties = logProperties;
+	}
 }

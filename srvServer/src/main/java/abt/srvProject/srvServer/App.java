@@ -1,9 +1,12 @@
 package abt.srvProject.srvServer;
 
 import java.io.FileInputStream;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 
-import abt.srvProject.model.Servicio;
+import abt.srvProject.model.Info;
+import abt.srvProject.model.Service;
 import abt.srvProject.service.srvServer;
 import abt.srvProject.srvRutinas.Rutinas;
 import abt.srvProject.utiles.GlobalArea;
@@ -22,24 +25,29 @@ public class App {
 			/**
 			 * Inicia Modulo Leyendo parametros de entrada
 			 */
-			String pathProperties = System.getProperty("properties");
+			Map<String, String> mainParam = new HashMap<>();
+			mainParam.put("pathProperties", System.getProperty("path"));
+			mainParam.put("fileProperties", System.getProperty("file"));
 			
-			if (pathProperties!=null) {
+			if (	mainParam.get("pathProperties")!=null &&
+					mainParam.get("fileProperties")!=null ) {
+
 				Properties fileConf = new Properties();
-				fileConf = getFileConf(pathProperties);
+				fileConf = getFileConf(mainParam);
 				
-				parseaProperties(fileConf);
+				parseaProperties(fileConf, mainParam);
+				
+				initComponent();
 
 				mylib.console("Iniciando servicio srvServer a las "+mylib.getDateNow());
 				mylib.console("Parametros Leidos:");
-				mylib.console("srvPort: "+gDatos.getServicio().getSrvPort());
-				mylib.console("dbHost : "+gDatos.getServicio().getDbHost());
-				mylib.console("dbName : "+gDatos.getServicio().getDbName());
-				mylib.console("dbType : "+gDatos.getServicio().getDbType());
-				mylib.console("dbUser : "+gDatos.getServicio().getDbUser());
-				mylib.console("pathProperties: "+pathProperties);
-				mylib.console("log4jName: "+gDatos.getServicio().getLog4jName());
-				mylib.console("log4jPath: "+gDatos.getServicio().getLog4jPath());
+				mylib.console("Enable: "+gDatos.getService().isEnable());
+				mylib.console("srvId: "+gDatos.getInfo().getSrvId());
+				mylib.console("srvIp: "+gDatos.getInfo().getSrvIp());
+				mylib.console("srvPort: "+gDatos.getInfo().getSrvPort());
+				mylib.console("pathProperties: "+gDatos.getInfo().getPathProperties());
+				mylib.console("fileProperties: "+gDatos.getInfo().getFileProperties());
+				mylib.console("logProperties: "+gDatos.getInfo().getLogProperties());
 				
 				mylib.console("Iniciando srvServer");
 				Thread thMain = new srvServer(gDatos);
@@ -56,27 +64,51 @@ public class App {
     	
     }
     
-    static void parseaProperties(Properties fileConf) throws Exception {
-    	Servicio servicio = new Servicio();
+    static void parseaProperties(Properties fileConf, Map<String,String> mainParam) throws Exception {
+    	Info info = new Info();
     	
-    	servicio.setAuthKey(fileConf.getProperty("authKey"));
-    	servicio.setSrvPort(Integer.valueOf(fileConf.getProperty("srvPort")));
-    	servicio.setTxpMain(Integer.valueOf(fileConf.getProperty("txpMain")));
-    	servicio.setTxtKeep(Integer.valueOf(fileConf.getProperty("txpKeep")));
-    	servicio.setLog4jName(fileConf.getProperty("log4jName"));
-    	servicio.setLog4jPath(fileConf.getProperty("log4jPath"));
-    	servicio.setPathProperties(System.getProperty("properties"));
+    	//Parametros de informacion del servicio
+    	info.setSrvId(fileConf.getProperty("srvId"));
+    	info.setSrvIp(fileConf.getProperty("srvIp"));
+    	info.setSrvPort(Integer.valueOf(fileConf.getProperty("srvPort")));
     	
-    	//Inicializa Variables iniciales
-    	servicio.setEnable(true);  //Esta variable de control puede ser actualizada desde la metadata
+    	//Variables de identificacion del monitor (master)
+    	info.setSrvMonIp(fileConf.getProperty("srvMonIp"));
+    	info.setSrvMonPort(Integer.valueOf(fileConf.getProperty("srvMonPort")));
+    	info.setSrvSMonIp(fileConf.getProperty("srvSMonIp"));
+    	info.setSrvSMonPort(Integer.valueOf(fileConf.getProperty("srvSMonPort")));
     	
-    	gDatos.setServicio(servicio);
+    	//Parametros de conrol de ciclo de schedule
+    	info.setTxpMain(Integer.valueOf(fileConf.getProperty("txpMain")));
+    	info.setTxpSync(Integer.valueOf(fileConf.getProperty("txpSync")));
+    	
+    	//Clave de intercambio de mensajes
+    	info.setAuthKey(fileConf.getProperty("authKey"));
+    	
+    	//Filename log4j
+    	info.setLogProperties(fileConf.getProperty("logProperties"));
+
+    	//Parametros de archivo de properties y log  -- Parametros de entrada
+    	info.setPathProperties(mainParam.get("pathProperties"));
+    	info.setFileProperties(mainParam.get("fileProperties"));
+    	
+    	//Actualiza GlobalArea.info
+    	gDatos.setInfo(info);
+    }
+    
+    static private void initComponent() throws Exception{
+    	Service srv = new Service();
+    	srv.setEnable(true);
+    	srv.setSrvIp(gDatos.getInfo().getSrvIp());
+    	srv.setSrvPort(gDatos.getInfo().getSrvPort());
+    	
+    	gDatos.updateService(srv);
     	
     }
     
-    static private Properties getFileConf(String pathProperties) throws Exception {
+    static private Properties getFileConf(Map<String,String> mainParam) throws Exception {
 		Properties conf = new Properties();
-		conf.load(new FileInputStream(pathProperties));
+		conf.load(new FileInputStream(mainParam.get("pathProperties")+"/"+mainParam.get("fileProperties")));
 		return conf;
     }
 }

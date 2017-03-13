@@ -14,7 +14,7 @@ public class Procedures {
 		gDatos = m;
 	}
 	
-	public String getStatus() {
+	public String sendStatus() {
 		/**
 		 * Debe retornar la respuesta formateada en json con jHeader y jData
 		 */
@@ -26,9 +26,23 @@ public class Procedures {
 			mapResponse.put("mapModule", gDatos.getMapModule());
 			data = mylib.serializeObjectToJSon(mapResponse, false);
 			
-			return mylib.msgResponse("OK", data, gDatos.getServicio().getAuthKey());
+			return mylib.msgResponse("OK", data, gDatos.getInfo().getAuthKey());
 		} catch (IOException e) {
 			return mylib.sendError(99, "Error proc: getStatus ("+e.getMessage()+")");
+		}
+	}
+	
+	public String sendService() {
+		Map<String, Object> mapResponse = new HashMap<>();
+		String data="";
+		
+		try {
+			mapResponse.put("service", gDatos.getService());
+			data = mylib.serializeObjectToJSon(mapResponse, false);
+			
+			return mylib.msgResponse("OK", data, gDatos.getInfo().getAuthKey());
+		} catch (IOException e) {
+			return mylib.sendError(99, "Error proc: getService ("+e.getMessage()+")");
 		}
 	}
 }

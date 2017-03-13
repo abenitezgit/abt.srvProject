@@ -31,7 +31,7 @@ public class srvListener extends Thread{
 	public srvListener(GlobalArea m) {
 		try {
 			gDatos = m;
-			String pathFileLog4j=gDatos.getServicio().getLog4jPath()+gDatos.getServicio().getLog4jName();
+			String pathFileLog4j=gDatos.getInfo().getPathProperties()+"/"+gDatos.getInfo().getLogProperties();
 			if (mylib.fileExist(pathFileLog4j)) {
 				PropertyConfigurator.configure(pathFileLog4j);
 				logger.info("Constructor iniciado");
@@ -53,7 +53,7 @@ public class srvListener extends Thread{
 	        	
 				init = true;
 			} else {
-				mylib.console(1,"Archivo no encontrado: "+gDatos.getServicio().getPathProperties()+"log4j.properties");
+				mylib.console(1,"Archivo no encontrado: "+gDatos.getInfo().getPathProperties()+gDatos.getInfo().getLogProperties());
 				init = false;
 			}
 		} catch (Exception e) {
@@ -69,11 +69,11 @@ public class srvListener extends Thread{
             	/**
             	 * Iniciando Thread Listener
             	 */
-                logger.info("Iniciando Listener Server port: " + gDatos.getServicio().getSrvPort());
+                logger.info("Iniciando Listener Server port: " + gDatos.getInfo().getSrvPort());
         		module.setLastFecIni(mylib.getDateNow());
         		gDatos.getMapModule().put(MODULE, module);
 
-                ServerSocket skServidor = new ServerSocket(gDatos.getServicio().getSrvPort());
+                ServerSocket skServidor = new ServerSocket(gDatos.getInfo().getSrvPort());
                 String inputData;
                 String outputData = null;
                 String dRequest;
@@ -81,7 +81,7 @@ public class srvListener extends Thread{
                 JSONObject jHeader;
                 JSONObject jData;
                 
-                while (gDatos.getServicio().isEnable()) {
+                while (gDatos.getService().isEnable()) {
                     Socket skCliente = skServidor.accept();
                     InputStream inpStr = skCliente.getInputStream();
                     ObjectInputStream objInput = new ObjectInputStream(inpStr);
@@ -97,17 +97,17 @@ public class srvListener extends Thread{
                         dAuth = jHeader.getString("auth");
                         dRequest = jHeader.getString("request");
 
-                        if (dAuth.equals(gDatos.getServicio().getAuthKey())) {
+                        if (dAuth.equals(gDatos.getInfo().getAuthKey())) {
                         	logger.info("Recibiendo TX("+ dRequest +"): "+ jData.toString());
                             switch (dRequest) {
                             	case "getStatus":
-                            		outputData = myproc.getStatus();
+                            		outputData = myproc.sendStatus();
                             		break;
                             	default:
-                            		mylib.console("Request: "+dRequest);
+                            		outputData = mylib.sendError(61);
                             }
                         } else {
-                            outputData = ""; //gSub.sendError(60);
+                            outputData = mylib.sendError(60);
                         }
                     } catch (Exception e) {
                         outputData = mylib.sendError(90);
@@ -137,6 +137,7 @@ public class srvListener extends Thread{
                  */
         		module.setLastFecFin(mylib.getDateNow());
         		gDatos.getMapModule().put(MODULE, module);
+        		logger.info("Finalizando Listener!");
 
                 
             } catch (Exception  e) {
