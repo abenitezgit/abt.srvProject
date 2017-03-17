@@ -11,7 +11,7 @@ import abt.srvProject.service.srvMonitor;
 import abt.srvProject.srvRutinas.Rutinas;
 import abt.srvProject.utiles.GlobalArea;
 
-public class App {
+public class AppMon {
 	static GlobalArea gDatos = new GlobalArea();
 	static Rutinas mylib = new Rutinas();
 	
@@ -49,7 +49,7 @@ public class App {
 				
 				mylib.console("Iniciando srvMonitor");
 				Thread thMain = new srvMonitor(gDatos);
-				thMain.setName("srvMonitor");
+				thMain.setName("thSrvMonitor");
 				thMain.start();
 			} else {
 				mylib.console(1,"No se han ingresado los parametros correctos");
@@ -78,6 +78,7 @@ public class App {
     	//Parametos de tiempos de control
     	info.setTxpMain(Integer.valueOf(fileConf.getProperty("txpMain")));
     	info.setTxpSync(Integer.valueOf(fileConf.getProperty("txpSync")));
+    	info.setTxpIns(Integer.valueOf(fileConf.getProperty("txpIns")));
     	
     	//Parametros de conexion a Metadata
     	info.setDbHost(fileConf.getProperty("dbHost"));
@@ -99,11 +100,11 @@ public class App {
     }
     
     static private void initComponent() throws Exception{
-    	Service srv = new Service();
-    	srv.setEnable(true);
-    	srv.setSrvId(gDatos.getInfo().getSrvId());
-    	srv.setSrvIp(gDatos.getInfo().getSrvIp());
-    	srv.setSrvPort(gDatos.getInfo().getSrvPort());
+    	Map<String,Object> srv = new HashMap<>();
+    	srv.put("srvId", gDatos.getInfo().getSrvId());
+    	srv.put("enable", true);
+    	srv.put("srvIp", gDatos.getInfo().getSrvIp());
+    	srv.put("srvPort", gDatos.getInfo().getSrvPort());
     	
     	gDatos.updateService(srv);
     	

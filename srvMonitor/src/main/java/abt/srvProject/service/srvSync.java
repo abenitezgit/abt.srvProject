@@ -50,7 +50,7 @@ public class srvSync extends Thread{
     @Override
     public void run() {
     	if (init) {
-	        Timer timerMain = new Timer(MODULE);
+	        Timer timerMain = new Timer("thSync");
 	        timerMain.schedule(new mainTask(), 5000, gDatos.getInfo().getTxpMain()	);
 	        logger.info("Servicio "+MODULE+" agendado cada: "+gDatos.getInfo().getTxpMain()/1000+ " segundos");
     	} else {

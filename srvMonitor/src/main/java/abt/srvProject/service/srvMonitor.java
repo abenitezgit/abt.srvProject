@@ -51,7 +51,7 @@ public class srvMonitor extends Thread{
     @Override
     public void run() {
     	if (init) {
-	        Timer timerMain = new Timer(MODULE);
+	        Timer timerMain = new Timer("thSrvMonitor");
 	        timerMain.schedule(new mainTask(), 5000, gDatos.getInfo().getTxpMain()	);
 	        logger.info("Servicio "+MODULE+" agendado cada: "+gDatos.getInfo().getTxpMain()/1000+ " segundos");
     	} else {
@@ -63,6 +63,7 @@ public class srvMonitor extends Thread{
     	Map<String, Boolean> mapThread = new HashMap<>();
     	Module module = new Module();
     	Thread thListener;
+    	Thread thProcess;
 
         //Constructor de la clase
         public mainTask() {
@@ -71,7 +72,8 @@ public class srvMonitor extends Thread{
         	module.setTxp(gDatos.getInfo().getTxpMain());
         }
         
-        public void run() {
+        @SuppressWarnings("deprecation")
+		public void run() {
         	try {
         		/**
         		 * Inicia ciclo del Modulo
@@ -91,21 +93,41 @@ public class srvMonitor extends Thread{
         		 * Levanta Listener
         		 */
                 try {
-                    if (!mapThread.get("srvListener")) {
+                    if (!mapThread.get("thListener")) {
                     	logger.info("Iniciando Listener");
                         thListener = new srvListener(gDatos);
-                        thListener.setName("srvListener");
+                        thListener.setName("thListener");
                         thListener.start();
                     } 
                 } catch (Exception e) {
-                    mapThread.replace("srvListener", false);
+                    mapThread.replace("thListener", false);
                     logger.error("Error al Iniciar Listener: srvListener ("+e.getMessage()+")");
                     if (thListener.isAlive()) {
                     	thListener.destroy();
                     }
                 }
         		
-        		
+
+        		/**
+        		 * Levanta srvProcess
+        		 */
+                try {
+                    if (!mapThread.get("thProcess")) {
+                    	logger.info("Iniciando "+MODULE);
+                    	thProcess = new srvProcess(gDatos);
+                    	thProcess.setName("thProcess");
+                    	thProcess.start();
+                    } 
+                } catch (Exception e) {
+                    mapThread.replace("thProcess", false);
+                    logger.error("Error al Iniciar "+MODULE+" ("+e.getMessage()+")");
+                    if (thProcess.isAlive()) {
+                    	thProcess.destroy();
+                    }
+                }
+
+                
+                
         		/**
         		 * Finalizando ciclo del Modulo
         		 */
@@ -120,19 +142,23 @@ public class srvMonitor extends Thread{
         
         private void actualizaStatusThread() {
             
-        	mapThread.put("srvListener", false);
-        	mapThread.put("srvSync", false);
+        	mapThread.put("thListener", false);
+        	mapThread.put("thSync", false);
+        	mapThread.put("thProcess", false);
             
             //Thread tr = Thread.currentThread();
             Set<Thread> threadSet = Thread.getAllStackTraces().keySet();
             //System.out.println("Current Thread: "+tr.getName()+" ID: "+tr.getId());
             for ( Thread t : threadSet){
                 //System.out.println("Thread :"+t+":"+"state:"+t.getState()+" ID: "+t.getId());
-                if (t.getName().equals("srvListener")) {
-                	mapThread.replace("srvListener", true);
+                if (t.getName().equals("thListener")) {
+                	mapThread.replace("thListener", true);
                 }
-                if (t.getName().equals("srvSync")) {
-                	mapThread.replace("srvSync", true);
+                if (t.getName().equals("thSync")) {
+                	mapThread.replace("thSync", true);
+                }
+                if (t.getName().equals("thProcess")) {
+                	mapThread.replace("thProcess", true);
                 }
             }
             

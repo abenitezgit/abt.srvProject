@@ -111,7 +111,7 @@ public class srvListener extends Thread{
                             		outputData = myproc.getStatus();
                             		break;
                             	case "syncService":
-                            		outputData = ""; //myproc.syncService(jData);
+                            		outputData = myproc.syncService(jData);
                             		break;
                             	case "syncMonitor":
                             		outputData = ""; //myproc.syncMonitor(jData);

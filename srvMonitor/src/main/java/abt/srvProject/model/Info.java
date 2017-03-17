@@ -9,6 +9,7 @@ public class Info {
 	//Parametros de control de tiempos de ejecucion
 	int txpMain;
 	int txpSync;
+	int txpIns;
 	
 	//Parametros de recuperacion de agendas
 	int ageShowHour;
@@ -32,8 +33,17 @@ public class Info {
 	String logProperties;
 	
 	//Getter and Setter
+	
+	
+	
 	public String getSrvId() {
 		return srvId;
+	}
+	public int getTxpIns() {
+		return txpIns;
+	}
+	public void setTxpIns(int txpIns) {
+		this.txpIns = txpIns;
 	}
 	public void setSrvId(String srvId) {
 		this.srvId = srvId;

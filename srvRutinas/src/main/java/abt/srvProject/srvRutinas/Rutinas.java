@@ -2,6 +2,7 @@ package abt.srvProject.srvRutinas;
 
 import java.io.File;
 import java.io.IOException;
+import java.sql.ResultSet;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -10,7 +11,108 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.SerializationConfig;
 import org.json.JSONObject;
 
+import abt.srvProject.model.Dependence;
+import abt.srvProject.model.Grupo;
+import abt.srvProject.model.Mov;
+import abt.srvProject.model.MovMatch;
+import abt.srvProject.model.Proceso;
+
+
 public class Rutinas {
+	
+	public void parseaMovMatch(MovMatch movMatch, ResultSet rs) throws Exception {
+		try {
+        	movMatch.setMovOrder(rs.getInt("MOVORDER"));
+        	movMatch.setSourceField(rs.getString("SOURCEFIELD"));
+            movMatch.setSourceLength(rs.getInt("SOURCELENGTH"));
+            movMatch.setSourceType(rs.getString("SOURCETYPE"));
+            movMatch.setDestField(rs.getString("DESTFIELD"));
+            movMatch.setDestLength(rs.getInt("DESTLENGTH"));
+            movMatch.setDestType(rs.getString("DESTTYPE"));
+		} catch (Exception e) {
+			throw new Exception(e.getMessage());
+		}
+		
+	}
+	
+	public void parseaMov(Mov mov, ResultSet rs) throws Exception {
+		try {
+            mov.setMovID(rs.getString("MOVID")); 
+            mov.setMovDesc(rs.getString("MOVDESC")); 
+            mov.setEnable(rs.getInt("MOVENABLE")); 
+            mov.setCliDesc(rs.getString("CLIDESC")); 
+            mov.setWHEREACTIVE(rs.getInt("WHEREACTIVE")); 
+            mov.setQUERYBODY(rs.getString("QUERYBODY")); 
+            mov.setSTBNAME(rs.getString("STBNAME")); 
+        	mov.setDTBNAME(rs.getString("DTBNAME")); 
+        	mov.setSIP(rs.getString("SIP")); 
+        	mov.setSDBNAME(rs.getString("SDBNAME")); 
+        	mov.setSDBDESC(rs.getString("SDBDESC")); 
+        	mov.setSDBTYPE(rs.getString("SDBTYPE")); 
+        	mov.setSDBPORT(rs.getString("SDBPORT")); 
+        	mov.setSDBINSTANCE(rs.getString("SDBINSTANCE")); 
+        	mov.setSDBCONF(rs.getString("SDBCONF")); 
+        	mov.setSDBJDBC(rs.getString("SDBJDBC")); 
+        	mov.setSUSERNAME(rs.getString("SUSERNAME")); 
+        	mov.setSUSERPASS(rs.getString("SUSERPASS")); 
+        	mov.setSUSERTYPE(rs.getString("SUSERTYPE")); 
+        	mov.setDIP(rs.getString("DIP")); 
+        	mov.setDDBDESC(rs.getString("DDBDESC")); 
+        	mov.setDDBNAME(rs.getString("DDBNAME")); 
+        	mov.setDDBTYPE(rs.getString("DDBTYPE")); 
+        	mov.setDDBPORT(rs.getString("DDBPORT")); 
+        	mov.setDDBINSTANCE(rs.getString("DDBINSTANCE")); 
+        	mov.setDDBCONF(rs.getString("DDBCONF")); 
+        	mov.setDDBJDBC(rs.getString("DDBJDBC")); 
+        	mov.setDUSERNAME(rs.getString("DUSERNAME")); 
+        	mov.setDUSERPASS(rs.getString("DUSERPASS")); 
+        	mov.setDUSERTYPE(rs.getString("DUSERTYPE")); 
+        	mov.setAppend(rs.getInt("APPEND")); 
+		} catch (Exception e) {
+			throw new Exception(e.getMessage());
+		}
+	}
+	
+	public void parseaDependence(Dependence dependence, ResultSet rs) throws Exception {
+		try {
+			dependence.setCritical(rs.getInt("critical"));
+			dependence.setGrpID(rs.getString("grpID"));
+			dependence.setProcHijo(rs.getString("procHijo"));
+			dependence.setProcPadre(rs.getString("procPadre"));
+		} catch (Exception e) {
+			throw new Exception(e.getMessage());
+		}
+	}
+	
+	public void parseaProceso(Proceso process, ResultSet rs) throws Exception {
+		try {
+			process.setCritical(rs.getInt("critical"));
+			process.setnOrder(rs.getInt("nOrder"));
+			process.setProcID(rs.getString("procID"));
+			process.setType(rs.getString("type"));
+			process.setParams("object");
+		} catch (Exception e) {
+			throw new Exception(e.getMessage());
+		}
+		
+	}
+	
+	public void parseaGrupo(Grupo grupo, ResultSet rs) throws Exception {
+		try {
+			grupo.setCliDesc(rs.getString("CLIDESC"));
+			grupo.setCliID(rs.getString("CLIID"));
+			grupo.setGrpDESC(rs.getString("GRPDESC"));
+			grupo.setGrpID(rs.getString("GRPID"));
+			grupo.setEnable(rs.getString("ENABLE"));
+			grupo.setHorDesc(rs.getString("HORDESC"));
+			grupo.setMaxTimeExec(rs.getInt("MAXTIMEEXEC"));
+			grupo.setNumSecExec(rs.getString("NUMSECEXEC"));
+			grupo.setTypeBalance(rs.getString("TYPEBALANCE"));
+			
+		} catch (Exception e) {
+			throw new Exception(e.getMessage());
+		}
+	}
 	
 	public boolean isWhitespace(String s) {
 	    int length = s.length();

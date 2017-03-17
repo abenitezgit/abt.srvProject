@@ -15,24 +15,6 @@ public class GlobalArea {
 	Service service = new Service();
 	Map<String, Module> mapModule = new HashMap<>();
 	
-	//Procedimientos internos
-	public synchronized void updateService(Service newSrv) throws Exception{
-
-		service.setEnable(newSrv.isEnable());
-		
-		if (!mylib.isNull(newSrv.getSrvId())) {
-			service.setSrvId(newSrv.getSrvId());
-		}
-		
-		if (!mylib.isNull(newSrv.getSrvIp())) {
-			service.setSrvIp(newSrv.getSrvIp());
-		}
-		
-		if (newSrv.getSrvPort()!=0) {
-			service.setSrvPort(newSrv.getSrvPort());
-		}
-	}
-	
 	//Getter and Setter
 	public Service getService() {
 		return service;
@@ -57,4 +39,29 @@ public class GlobalArea {
 	public void setInfo(Info info) {
 		this.info = info;
 	}
+	
+	//Procedimientos internos
+	public synchronized void updateService(Map<String,Object> newSrv) throws Exception {
+		
+		for (Map.Entry<String, Object> entry : newSrv.entrySet()) {
+			switch (entry.getKey()) {
+			case "srvId":
+				service.setSrvId((String) entry.getValue());
+				break;
+			case "srvIp":
+				service.setSrvIp((String) entry.getValue());
+				break;
+			case "srvPort":
+				service.setSrvPort((int) entry.getValue());
+				break;
+			case "enable":
+				service.setEnable((boolean) entry.getValue());
+				break;
+			case "activePrimaryMonitor":
+				service.setActivePrimaryMonitor((boolean) entry.getValue());
+				break;
+			}
+		}
+	}
+
 }

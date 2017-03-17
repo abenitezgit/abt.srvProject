@@ -15,7 +15,7 @@ import abt.srvProject.utiles.GlobalArea;
  * Hello world!
  *
  */
-public class App {
+public class AppSrv {
 	static GlobalArea gDatos = new GlobalArea();
 	static Rutinas mylib = new Rutinas();
 	
@@ -81,6 +81,7 @@ public class App {
     	//Parametros de conrol de ciclo de schedule
     	info.setTxpMain(Integer.valueOf(fileConf.getProperty("txpMain")));
     	info.setTxpSync(Integer.valueOf(fileConf.getProperty("txpSync")));
+    	info.setTxpRun(Integer.valueOf(fileConf.getProperty("txpRun")));
     	
     	//Clave de intercambio de mensajes
     	info.setAuthKey(fileConf.getProperty("authKey"));
@@ -97,10 +98,12 @@ public class App {
     }
     
     static private void initComponent() throws Exception{
-    	Service srv = new Service();
-    	srv.setEnable(true);
-    	srv.setSrvIp(gDatos.getInfo().getSrvIp());
-    	srv.setSrvPort(gDatos.getInfo().getSrvPort());
+    	Map<String,Object> srv = new HashMap<>();
+    	srv.put("srvId", gDatos.getInfo().getSrvId());
+    	srv.put("enable", true);
+    	srv.put("srvIp", gDatos.getInfo().getSrvIp());
+    	srv.put("srvPort", gDatos.getInfo().getSrvPort());
+    	srv.put("activePrimaryMonitor", true);
     	
     	gDatos.updateService(srv);
     	

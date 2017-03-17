@@ -15,6 +15,7 @@ public class Info {
 	//Parametros de conrol de ciclo de schedule
 	int txpMain;
 	int txpSync;
+	int txpRun;
 	
 	//Clave de intercambio de mensajes
 	String authKey;
@@ -25,8 +26,15 @@ public class Info {
 	String logProperties;
 	
 	//Getter and Setter
+
 	public String getSrvId() {
 		return srvId;
+	}
+	public int getTxpRun() {
+		return txpRun;
+	}
+	public void setTxpRun(int txpRun) {
+		this.txpRun = txpRun;
 	}
 	public void setSrvId(String srvId) {
 		this.srvId = srvId;

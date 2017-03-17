@@ -63,6 +63,7 @@ public class srvServer extends Thread{
     	Map<String, Boolean> mapThread = new HashMap<>();
     	Module module = new Module();
     	Thread thListener;
+    	Thread thSync;
 
         //Constructor de la clase
         public mainTask() {
@@ -71,7 +72,8 @@ public class srvServer extends Thread{
         	module.setTxp(gDatos.getInfo().getTxpMain());
         }
         
-        public void run() {
+        @SuppressWarnings("deprecation")
+		public void run() {
         	try {
         		/**
         		 * Inicia ciclo del Modulo
@@ -91,21 +93,41 @@ public class srvServer extends Thread{
         		 * Levanta Listener
         		 */
                 try {
-                    if (!mapThread.get("srvListener")) {
+                    if (!mapThread.get("thListener")) {
                     	logger.info("Iniciando Listener");
                         thListener = new srvListener(gDatos);
-                        thListener.setName("srvListener");
+                        thListener.setName("thListener");
                         thListener.start();
                     } 
                 } catch (Exception e) {
-                    mapThread.replace("srvListener", false);
+                    mapThread.replace("thListener", false);
                     logger.error("Error al Iniciar Listener: srvListener ("+e.getMessage()+")");
                     if (thListener.isAlive()) {
                     	thListener.destroy();
                     }
                 }
         		
-        		
+
+        		/**
+        		 * Levanta srvSync
+        		 */
+                try {
+                    if (!mapThread.get("thSync")) {
+                    	logger.info("Iniciando srvSync");
+                        thSync = new srvSync(gDatos);
+                        thSync.setName("thSync");
+                        thSync.start();
+                    } 
+                } catch (Exception e) {
+                    mapThread.replace("thSync", false);
+                    logger.error("Error al Iniciar srvSync ("+e.getMessage()+")");
+                    if (thSync.isAlive()) {
+                    	thSync.destroy();
+                    }
+                }
+
+                
+                
         		/**
         		 * Finalizando ciclo del Modulo
         		 */
@@ -120,19 +142,19 @@ public class srvServer extends Thread{
         
         private void actualizaStatusThread() {
             
-        	mapThread.put("srvListener", false);
-        	mapThread.put("srvSync", false);
+        	mapThread.put("thListener", false);
+        	mapThread.put("thSync", false);
             
             //Thread tr = Thread.currentThread();
             Set<Thread> threadSet = Thread.getAllStackTraces().keySet();
             //System.out.println("Current Thread: "+tr.getName()+" ID: "+tr.getId());
             for ( Thread t : threadSet){
                 //System.out.println("Thread :"+t+":"+"state:"+t.getState()+" ID: "+t.getId());
-                if (t.getName().equals("srvListener")) {
-                	mapThread.replace("srvListener", true);
+                if (t.getName().equals("thListener")) {
+                	mapThread.replace("thListener", true);
                 }
-                if (t.getName().equals("srvSync")) {
-                	mapThread.replace("srvSync", true);
+                if (t.getName().equals("thSync")) {
+                	mapThread.replace("thSync", true);
                 }
             }
             

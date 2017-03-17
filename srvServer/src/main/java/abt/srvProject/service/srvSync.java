@@ -2,7 +2,6 @@ package abt.srvProject.service;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -13,11 +12,13 @@ import org.apache.log4j.PropertyConfigurator;
 import abt.srvProject.model.Module;
 import abt.srvProject.srvRutinas.Rutinas;
 import abt.srvProject.utiles.GlobalArea;
+import abt.srvProject.utiles.Procedures;
 
 public class srvSync extends Thread{
 	static final String MODULE="srvSync";
 	static Logger logger = Logger.getLogger(MODULE);
 	static Rutinas mylib = new Rutinas();
+	static Procedures myproc;
 	static GlobalArea gDatos;
 	
 	//Control de Ejecucion del servicio
@@ -26,6 +27,7 @@ public class srvSync extends Thread{
 	public srvSync(GlobalArea m) {
 		try {
 			gDatos = m;
+			myproc = new Procedures(gDatos);
 			String pathFileLog4j=gDatos.getInfo().getPathProperties()+"/"+gDatos.getInfo().getLogProperties();
 			if (mylib.fileExist(pathFileLog4j)) {
 				PropertyConfigurator.configure(pathFileLog4j);
@@ -51,7 +53,7 @@ public class srvSync extends Thread{
     @Override
     public void run() {
     	if (init) {
-	        Timer timerMain = new Timer("thSrvSync");
+	        Timer timerMain = new Timer("thSync");
 	        timerMain.schedule(new mainTask(), 5000, gDatos.getInfo().getTxpSync()	);
 	        logger.info("Servicio "+MODULE+" agendado cada: "+gDatos.getInfo().getTxpSync()/1000+ " segundos");
     	} else {
@@ -80,8 +82,24 @@ public class srvSync extends Thread{
         		module.setLastFecIni(mylib.getDateNow());
         		gDatos.getMapModule().put(MODULE, module);
         		
-
+        		String dRequest = myproc.genMsgRequestSync();
+        		logger.info("Data Request: "+dRequest);
         		
+        		if (!mylib.isNull(dRequest)) {
+        			String dResponse = myproc.sendRequestMonitor(dRequest);
+        			logger.info("Data Response: "+dResponse);
+        			
+        			if (!mylib.isNull(dResponse)) {
+        				//Analiza respuesta
+        				
+        			} else {
+        				//Respuesta nula
+        				logger.error("No hay respuesta desde Monitor");
+        			}
+        		} else {
+        			//No se pudo generar SyncService
+        			logger.error("Request mal generado");
+        		}
         		
         		/**
         		 * Finalizando ciclo del Modulo
