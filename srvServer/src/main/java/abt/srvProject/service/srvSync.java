@@ -90,7 +90,11 @@ public class srvSync extends Thread{
         			logger.info("Data Response: "+dResponse);
         			
         			if (!mylib.isNull(dResponse)) {
-        				//Analiza respuesta
+        				//La respuesta es una actualización de:
+        				//la habilitación del servicio
+        				//la lista de clientes
+        				//el map de procesos asignados
+        				
         				
         			} else {
         				//Respuesta nula

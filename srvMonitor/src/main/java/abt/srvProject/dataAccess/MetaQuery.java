@@ -9,6 +9,24 @@ public class MetaQuery {
 		this.dbType = dbType;
 	}
 	
+	public String getSqlFindServices() {
+    	String vSQL="";
+    	switch (dbType) {
+    	case "mySQL":
+    		vSQL = 	"select " +
+                    "  srvID, srvDesc, srvEnable, srvTypeProc, orderBalance, pctBalance " +
+                    "from  " +
+                    "  tb_services " +
+                    "order by " +
+                    "  srvID asc";
+    		break;
+		default:
+			vSQL="";
+			break;
+    	}
+    	return vSQL;
+	}
+	
 	public String getSqlFindMovMatch(String MOVID) {
     	String vSQL="";
     	switch (dbType) {

@@ -22,6 +22,7 @@ public class srvMonitor extends Thread{
 	
 	//Control de Ejecucion del servicio
 	boolean init;
+	static int TxP;
 	
 	public srvMonitor(GlobalArea m) {
 		try {
@@ -51,9 +52,10 @@ public class srvMonitor extends Thread{
     @Override
     public void run() {
     	if (init) {
+    		TxP = gDatos.getInfo().getTxpMain()/1000;
 	        Timer timerMain = new Timer("thSrvMonitor");
 	        timerMain.schedule(new mainTask(), 5000, gDatos.getInfo().getTxpMain()	);
-	        logger.info("Servicio "+MODULE+" agendado cada: "+gDatos.getInfo().getTxpMain()/1000+ " segundos");
+	        logger.info("Servicio "+MODULE+" agendado cada: "+TxP+ " segundos");
     	} else {
     		mylib.console(1,"Abortando servicio por error en constructor "+MODULE);
     	}
@@ -64,16 +66,18 @@ public class srvMonitor extends Thread{
     	Module module = new Module();
     	Thread thListener;
     	Thread thProcess;
+    	Thread thDBAccess;
 
         //Constructor de la clase
         public mainTask() {
         	module.setName(MODULE);
         	module.setType("TIMERTASK");
-        	module.setTxp(gDatos.getInfo().getTxpMain());
+        	module.setTxp(TxP);
         }
         
         @SuppressWarnings("deprecation")
 		public void run() {
+        	String threadName;
         	try {
         		/**
         		 * Inicia ciclo del Modulo
@@ -92,16 +96,17 @@ public class srvMonitor extends Thread{
         		/**
         		 * Levanta Listener
         		 */
+        		threadName = "thListener";
                 try {
-                    if (!mapThread.get("thListener")) {
-                    	logger.info("Iniciando Listener");
-                        thListener = new srvListener(gDatos);
-                        thListener.setName("thListener");
+                    if (!mapThread.get(threadName)) {
+                    	logger.info("Iniciando Thread "+threadName);
+                        thListener = new ThListener(gDatos);
+                        thListener.setName(threadName);
                         thListener.start();
                     } 
                 } catch (Exception e) {
-                    mapThread.replace("thListener", false);
-                    logger.error("Error al Iniciar Listener: srvListener ("+e.getMessage()+")");
+                    mapThread.replace(threadName, false);
+                    logger.error("Error al Iniciar Thread: "+threadName+" ("+e.getMessage()+")");
                     if (thListener.isAlive()) {
                     	thListener.destroy();
                     }
@@ -111,21 +116,40 @@ public class srvMonitor extends Thread{
         		/**
         		 * Levanta srvProcess
         		 */
+                threadName = "thProcess";
                 try {
-                    if (!mapThread.get("thProcess")) {
-                    	logger.info("Iniciando "+MODULE);
-                    	thProcess = new srvProcess(gDatos);
-                    	thProcess.setName("thProcess");
+                    if (!mapThread.get(threadName)) {
+                    	logger.info("Iniciando Thread "+threadName);
+                    	thProcess = new ThProcess(gDatos);
+                    	thProcess.setName(threadName);
                     	thProcess.start();
                     } 
                 } catch (Exception e) {
-                    mapThread.replace("thProcess", false);
-                    logger.error("Error al Iniciar "+MODULE+" ("+e.getMessage()+")");
+                    mapThread.replace(threadName, false);
+                    logger.error("Error al Iniciar Thread: "+threadName+" ("+e.getMessage()+")");
                     if (thProcess.isAlive()) {
                     	thProcess.destroy();
                     }
                 }
 
+        		/**
+        		 * Levanta ThDBAccess
+        		 */
+                threadName = "thDBAccess";
+                try {
+                    if (!mapThread.get(threadName)) {
+                    	logger.info("Iniciando Thread "+threadName);
+                    	thProcess = new ThDBAccess(gDatos);
+                    	thProcess.setName(threadName);
+                    	thProcess.start();
+                    } 
+                } catch (Exception e) {
+                    mapThread.replace(threadName, false);
+                    logger.error("Error al Iniciar Thread: "+threadName+" ("+e.getMessage()+")");
+                    if (thProcess.isAlive()) {
+                    	thProcess.destroy();
+                    }
+                }
                 
                 
         		/**
@@ -145,6 +169,7 @@ public class srvMonitor extends Thread{
         	mapThread.put("thListener", false);
         	mapThread.put("thSync", false);
         	mapThread.put("thProcess", false);
+        	mapThread.put("thDBAccess", false);
             
             //Thread tr = Thread.currentThread();
             Set<Thread> threadSet = Thread.getAllStackTraces().keySet();
@@ -159,6 +184,9 @@ public class srvMonitor extends Thread{
                 }
                 if (t.getName().equals("thProcess")) {
                 	mapThread.replace("thProcess", true);
+                }
+                if (t.getName().equals("thDBAccess")) {
+                	mapThread.replace("thDBAccess", true);
                 }
             }
             

@@ -14,21 +14,23 @@ import org.json.JSONObject;
 
 import abt.srvProject.model.Module;
 import abt.srvProject.srvRutinas.Rutinas;
+import abt.srvProject.utiles.DataExchange;
 import abt.srvProject.utiles.GlobalArea;
 import abt.srvProject.utiles.Procedures;
 
-public class srvListener extends Thread{
-	static final String MODULE="srvListener";
+public class ThListener extends Thread{
+	static final String MODULE="ThListener";
 	static Logger logger = Logger.getLogger(MODULE);
 	static Rutinas mylib = new Rutinas();
 	static GlobalArea gDatos;
 	static Procedures myproc;
+	static DataExchange dproc;
 	Module module = new Module();
 	
 	//Control de Ejecucion del servicio
 	boolean init;
 	
-	public srvListener(GlobalArea m) {
+	public ThListener(GlobalArea m) {
 		try {
 			gDatos = m;
 			String pathFileLog4j=gDatos.getInfo().getPathProperties()+"/"+gDatos.getInfo().getLogProperties();
@@ -48,8 +50,9 @@ public class srvListener extends Thread{
 	        	module.setType("THREAD");
 	        	module.setTxp(0);
 
-				//Instanciando clase de Procedures
+				//Instanciando clases
 	        	myproc = new Procedures(gDatos);
+	        	dproc = new DataExchange(gDatos);
 	        	
 				init = true;
 			} else {
@@ -105,13 +108,19 @@ public class srvListener extends Thread{
                         dRequest = jHeader.getString("request");
 
                         if (dAuth.equals(gDatos.getInfo().getAuthKey())) {
-                        	logger.info("Recibiendo TX("+ dRequest +"): "+ jData.toString());
+                        	logger.info("Recibiendo RX("+ dRequest +"): "+ jData.toString());
                             switch (dRequest) {
                             	case "getStatus":
-                            		outputData = myproc.getStatus();
+                            		outputData = dproc.sendStatus();
+                            		break;
+                            	case "getProcControl":
+                            		outputData = dproc.sendProcControl();
+                            		break;
+                            	case "getGroupControl":
+                            		outputData = dproc.sendGroupControl();
                             		break;
                             	case "syncService":
-                            		outputData = myproc.syncService(jData);
+                            		outputData = dproc.syncService(jData);
                             		break;
                             	case "syncMonitor":
                             		outputData = ""; //myproc.syncMonitor(jData);
@@ -133,6 +142,8 @@ public class srvListener extends Thread{
                     if (outputData==null) {
                     	outputData = mylib.sendError(90);
                     } 
+                    
+                    logger.info("Enviando TX(): "+ outputData);
                     
                     ObjOutput.writeObject(outputData);
                     

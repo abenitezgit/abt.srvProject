@@ -20,6 +20,26 @@ import abt.srvProject.model.Proceso;
 
 public class Rutinas {
 	
+	public String getUpdateString(String oldS, String newS, int flag) {
+		switch (flag) {
+			case 0:
+				//si oldS = null or oldS = blanco actualiza con newS
+				if (isNullOrEmpty(oldS)) {
+					oldS = newS;
+				}
+				break;
+			case 1:
+				//actualiza siempre que newS sea != null
+				if (!isNullOrEmpty(newS)) {
+					oldS = newS;
+				}
+				break;
+			default:
+				break;
+			}
+		return oldS;
+	}
+	
 	public void parseaMovMatch(MovMatch movMatch, ResultSet rs) throws Exception {
 		try {
         	movMatch.setMovOrder(rs.getInt("MOVORDER"));
@@ -153,6 +173,18 @@ public class Rutinas {
 					}
 	}
 	
+	public Date getDate() throws Exception {
+		try {
+	        Date today;
+	        SimpleDateFormat formatter;
+	        formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+	        today = new Date();
+	        return formatter.parse(formatter.format(today));
+		} catch (Exception e) {
+			throw new Exception(e.getMessage());
+		}
+	}
+	
     public String getDateNow() throws Exception {
         Date today;
         SimpleDateFormat formatter;
@@ -210,11 +242,10 @@ public class Rutinas {
     	}
     }
     
-    public String msgResponse(String status, String data, String authKey) {
+    public String msgResponse(String status, String data) {
         JSONObject jHeader = new JSONObject();
         
         jHeader.put("data", data);
-        jHeader.put("auth", authKey);
         jHeader.put("status", status);
 
         return jHeader.toString();

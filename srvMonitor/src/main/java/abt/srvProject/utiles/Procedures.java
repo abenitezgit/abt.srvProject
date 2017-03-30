@@ -1,17 +1,12 @@
 package abt.srvProject.utiles;
 
-import java.io.IOException;
 import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.SimpleTimeZone;
 import java.util.TimeZone;
-
-import org.json.JSONObject;
 
 import abt.srvProject.dataAccess.MetaData;
 import abt.srvProject.dataAccess.MetaQuery;
@@ -29,6 +24,34 @@ public class Procedures {
 	
 	public Procedures(GlobalArea m) {
 		gDatos = m;
+	}
+	
+	public void appendNewProcess() throws Exception {
+		try {
+			//Busca todos los grupos nuevos activados en Cola de Grupos
+			if (gDatos.getLkdGrupo().size()>0) {
+				Grupo grupo;
+				int numItems = gDatos.getLkdGrupo().size();
+				while (numItems > 0) {
+					
+					grupo = new Grupo();
+					grupo = gDatos.getLkdGrupo().remove();
+					
+					//Valida si grupo ya está inscrito en groupControl
+					String key=grupo.getGrpID()+"+"+grupo.getNumSecExec();
+					if (!gDatos.isExistGrupoIns(key)) {
+						gDatos.inscribeGroup(key);
+						gDatos.inscribeProcess(grupo);
+					}
+					numItems = gDatos.getLkdGrupo().size();
+				}
+				
+			} else {
+				//No hay nuevos grupos en cola de grupos.
+			}
+		} catch (Exception e) {
+			throw new Exception(e.getMessage());
+		}
 	}
 	
 	public void appendColaGruposActivos(List<Grupo> lstGrupo) throws Exception {
@@ -71,9 +94,8 @@ public class Procedures {
 		        				//Recupera procesos del Grupo
 		        				grupo.setLstProcess(getListaProcesos(grupo.getGrpID()));
 		        				
-		        				grupo.setLstDepend(getListaDependences(grupo.getGrpID()));
-		        				
 		        				//Recupera dependencias de procesos del grupo
+		        				grupo.setLstDepend(getListaDependences(grupo.getGrpID()));
 		        				
 		        				lstGrupo.add(grupo);
 		        			}
@@ -85,6 +107,7 @@ public class Procedures {
 		        		//No pudo ejecutar la Query de busquedas de grupo
 		        	}
 				} //end for
+				dbConn.close();
 			} else {
 				//No es posible conectarse a la base de datos
 			} 
@@ -385,38 +408,6 @@ public class Procedures {
     		throw new Exception(e.getMessage());
     	}
     }
-	
-	public String getStatus() {
-		/**
-		 * Debe retornar la respuesta formateada en json con jHeader y jData
-		 */
-		
-		Map<String, Object> mapResponse = new HashMap<>();
-		String data="";
-		
-		try {
-			mapResponse.put("mapModule", gDatos.getMapModule());
-			data = mylib.serializeObjectToJSon(mapResponse, false);
-			
-			return mylib.msgResponse("OK", data, gDatos.getInfo().getAuthKey());
-		} catch (IOException e) {
-			return mylib.sendError(99, "Error proc: getStatus ("+e.getMessage()+")");
-		}
-	}
-	
-	public String syncService(JSONObject jData) {
-		try {
-			JSONObject jService = new JSONObject(jData.getString("service"));
-			
-			Map<String, Object> mapSrv = jService.toMap();
-			
-			gDatos.updateService(mapSrv);
-			
-			return mylib.sendError(0,"Terminado");
-			
-		} catch (Exception e) {
-			return mylib.sendError(99, "Error proc: syncService ("+e.getMessage()+")");
-		}
-	}
+    
 	
 }

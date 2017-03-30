@@ -2,7 +2,7 @@ package abt.srvProject.model;
 
 public class AssignedTypeProc {
 	String typeProc;
-	String maxThread;
+	int maxThread;
 
 	//Getter ans Setter
 	
@@ -12,10 +12,10 @@ public class AssignedTypeProc {
 	public void setTypeProc(String typeProc) {
 		this.typeProc = typeProc;
 	}
-	public String getMaxThread() {
+	public int getMaxThread() {
 		return maxThread;
 	}
-	public void setMaxThread(String maxThread) {
+	public void setMaxThread(int maxThread) {
 		this.maxThread = maxThread;
 	}
 }

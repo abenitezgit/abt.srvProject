@@ -13,16 +13,17 @@ import abt.srvProject.model.Module;
 import abt.srvProject.srvRutinas.Rutinas;
 import abt.srvProject.utiles.GlobalArea;
 
-public class srvSync extends Thread{
-	static final String MODULE="srvSync";
+public class ThSync extends Thread{
+	static final String MODULE="ThSync";
 	static Logger logger = Logger.getLogger(MODULE);
 	static Rutinas mylib = new Rutinas();
 	static GlobalArea gDatos;
 	
 	//Control de Ejecucion del servicio
 	boolean init;
+	static int TxP;
 	
-	public srvSync(GlobalArea m) {
+	public ThSync(GlobalArea m) {
 		try {
 			gDatos = m;
 			String pathFileLog4j=gDatos.getInfo().getPathProperties()+"/"+gDatos.getInfo().getLogProperties();
@@ -50,9 +51,10 @@ public class srvSync extends Thread{
     @Override
     public void run() {
     	if (init) {
+    		TxP = gDatos.getInfo().getTxpMain()/1000;
 	        Timer timerMain = new Timer("thSync");
-	        timerMain.schedule(new mainTask(), 5000, gDatos.getInfo().getTxpMain()	);
-	        logger.info("Servicio "+MODULE+" agendado cada: "+gDatos.getInfo().getTxpMain()/1000+ " segundos");
+	        timerMain.schedule(new mainTask(), 5000, TxP*1000);
+	        logger.info("Servicio "+MODULE+" agendado cada: "+TxP+ " segundos");
     	} else {
     		mylib.console(1,"Abortando servicio por error en constructor "+MODULE);
     	}
@@ -67,7 +69,7 @@ public class srvSync extends Thread{
         public mainTask() {
         	module.setName(MODULE);
         	module.setType("TIMERTASK");
-        	module.setTxp(gDatos.getInfo().getTxpMain());
+        	module.setTxp(TxP);
         }
         
         public void run() {

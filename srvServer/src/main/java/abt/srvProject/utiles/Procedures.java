@@ -89,7 +89,7 @@ public class Procedures {
 	    		} catch (Exception e) {
 	    			isMaster = !isMaster;
 	    			Map<String,Object> srv = new HashMap<>();
-	    			srv.put("enable", isMaster);
+	    			srv.put("activePrimaryMonitor", isMaster);
 	    			gDatos.updateService(srv);
 	    			it++;
 	    		}
@@ -97,6 +97,7 @@ public class Procedures {
 			
     		return response;
 		} catch (Exception e) {
+			logger.error("Error en sendRequestMonitor ("+e.getMessage()+")");
 			return null;
 		}
 	}
@@ -113,7 +114,7 @@ public class Procedures {
 			mapResponse.put("mapModule", gDatos.getMapModule());
 			data = mylib.serializeObjectToJSon(mapResponse, false);
 			
-			return mylib.msgResponse("OK", data, gDatos.getInfo().getAuthKey());
+			return mylib.msgResponse("OK", data);
 		} catch (IOException e) {
 			return mylib.sendError(99, "Error proc: getStatus ("+e.getMessage()+")");
 		}
@@ -127,7 +128,7 @@ public class Procedures {
 			mapResponse.put("service", gDatos.getService());
 			data = mylib.serializeObjectToJSon(mapResponse, false);
 			
-			return mylib.msgResponse("OK", data, gDatos.getInfo().getAuthKey());
+			return mylib.msgResponse("OK", data);
 		} catch (IOException e) {
 			return mylib.sendError(99, "Error proc: getService ("+e.getMessage()+")");
 		}

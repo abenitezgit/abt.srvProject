@@ -13,14 +13,15 @@ import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 
 import abt.srvProject.model.Agenda;
+import abt.srvProject.model.GroupControl;
 import abt.srvProject.model.Grupo;
 import abt.srvProject.model.Module;
 import abt.srvProject.srvRutinas.Rutinas;
 import abt.srvProject.utiles.GlobalArea;
 import abt.srvProject.utiles.Procedures;
 
-public class srvProcess extends Thread{
-	static final String MODULE="srvProcess";
+public class ThProcess extends Thread{
+	static final String MODULE="ThProcess";
 	static Logger logger = Logger.getLogger(MODULE);
 	static Rutinas mylib = new Rutinas();
 	static GlobalArea gDatos;
@@ -28,8 +29,9 @@ public class srvProcess extends Thread{
 	
 	//Control de Ejecucion del servicio
 	boolean init;
+	static int TxP;
 	
-	public srvProcess(GlobalArea m) {
+	public ThProcess(GlobalArea m) {
 		try {
 			gDatos = m;
 			myproc = new Procedures(gDatos);
@@ -58,9 +60,10 @@ public class srvProcess extends Thread{
     @Override
     public void run() {
     	if (init) {
+    		TxP = gDatos.getInfo().getTxpIns()/1000;
 	        Timer timerMain = new Timer("thProcess");
-	        timerMain.schedule(new mainTask(), 5000, gDatos.getInfo().getTxpIns()	);
-	        logger.info("Servicio "+MODULE+" agendado cada: "+gDatos.getInfo().getTxpIns()/1000+ " segundos");
+	        timerMain.schedule(new mainTask(), 5000, TxP*1000);
+	        logger.info("Servicio "+MODULE+" agendado cada: "+TxP+ " segundos");
     	} else {
     		mylib.console(1,"Abortando servicio por error en constructor "+MODULE);
     	}
@@ -75,7 +78,7 @@ public class srvProcess extends Thread{
         public mainTask() {
         	module.setName(MODULE);
         	module.setType("TIMERTASK");
-        	module.setTxp(gDatos.getInfo().getTxpIns());
+        	module.setTxp(TxP);
         }
         
         public void run() {
@@ -100,7 +103,7 @@ public class srvProcess extends Thread{
 	        		List<Grupo> lstGrupo = new ArrayList<>();
 	        		lstGrupo = myproc.getGrupos(lstAgenda);
 	        		
-	        		//Sube los grupos encontrados a la cola de grupos activos encontrados
+	        		//Agrega los grupos encontrados a la cola de grupos activos encontrados
 	        		myproc.appendColaGruposActivos(lstGrupo);
 	        		
 	        		//muestraListaGrupoJson(mapGrupo);
@@ -111,10 +114,15 @@ public class srvProcess extends Thread{
 	        		
         		} else {
         			logger.info("No hay agendas activas en estos momentos");
-        		}	
+        		}
         		
-	        		
+        		//Actualiza el mapa de control de procesos
+        		myproc.appendNewProcess();
         		
+        		
+        		muestralstProcControl();
+        		
+        		muestramapGroupControl();
         		
         		
         		/**
@@ -139,6 +147,18 @@ public class srvProcess extends Thread{
         		logger.info("Terminado ciclo "+MODULE+" con Error");
         	}
         }
+    }
+    
+    static void muestralstProcControl() {
+    	for (int i=0; i<gDatos.getLstProcControl().size(); i++) {
+    		mylib.console("procControl: "+gDatos.getLstProcControl().get(i).getGrpID()+"+"+gDatos.getLstProcControl().get(i).getProcID()+"+"+gDatos.getLstProcControl().get(i).getNumSecExec()+"+"+gDatos.getLstProcControl().get(i).getStatus()+"+"+gDatos.getLstProcControl().get(i).getFecIns());
+    	}
+    }
+    
+    static void muestramapGroupControl() {
+    	for (Map.Entry<String, GroupControl> entry : gDatos.getMapGroupControl().entrySet()) {
+    		mylib.console("groupControl: "+entry.getKey()+"+"+entry.getValue().getStatus()+"+"+entry.getValue().getFecIns());
+    	}
     }
     
     static void muestraListaGrupoJson(Map<String, Grupo> mapGrupo) {

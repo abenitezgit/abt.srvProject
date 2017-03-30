@@ -10,6 +10,7 @@ public class Info {
 	int txpMain;
 	int txpSync;
 	int txpIns;
+	int txpDB;
 	
 	//Parametros de recuperacion de agendas
 	int ageShowHour;
@@ -35,9 +36,14 @@ public class Info {
 	//Getter and Setter
 	
 	
-	
 	public String getSrvId() {
 		return srvId;
+	}
+	public int getTxpDB() {
+		return txpDB;
+	}
+	public void setTxpDB(int txpDB) {
+		this.txpDB = txpDB;
 	}
 	public int getTxpIns() {
 		return txpIns;

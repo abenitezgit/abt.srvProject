@@ -6,7 +6,6 @@ import java.util.Map;
 import java.util.Properties;
 
 import abt.srvProject.model.Info;
-import abt.srvProject.model.Service;
 import abt.srvProject.service.srvMonitor;
 import abt.srvProject.srvRutinas.Rutinas;
 import abt.srvProject.utiles.GlobalArea;
@@ -79,6 +78,7 @@ public class AppMon {
     	info.setTxpMain(Integer.valueOf(fileConf.getProperty("txpMain")));
     	info.setTxpSync(Integer.valueOf(fileConf.getProperty("txpSync")));
     	info.setTxpIns(Integer.valueOf(fileConf.getProperty("txpIns")));
+    	info.setTxpDB(Integer.valueOf(fileConf.getProperty("txpDB")));
     	
     	//Parametros de conexion a Metadata
     	info.setDbHost(fileConf.getProperty("dbHost"));

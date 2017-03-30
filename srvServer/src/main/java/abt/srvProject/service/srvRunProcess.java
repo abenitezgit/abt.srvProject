@@ -70,7 +70,7 @@ public class srvRunProcess extends Thread{
         public mainTask() {
         	module.setName(MODULE);
         	module.setType("TIMERTASK");
-        	module.setTxp(gDatos.getInfo().getTxpSync());
+        	module.setTxp(gDatos.getInfo().getTxpRun());
         }
         
         public void run() {
