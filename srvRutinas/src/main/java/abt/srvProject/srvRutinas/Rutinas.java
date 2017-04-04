@@ -20,6 +20,28 @@ import abt.srvProject.model.Proceso;
 
 public class Rutinas {
 	
+	public int validaResponse(String dResponse, String objName, Object obj, String mesg) {
+		try {
+			JSONObject jr = new JSONObject(dResponse);
+			int status = jr.getInt("status");
+			mesg = jr.getString("mesg");
+			
+			if (status==0) {
+				JSONObject jData = new JSONObject(jr.getString("data"));
+				
+				JSONObject jo = new JSONObject(jData.getJSONObject(objName));
+				
+				obj = jo.toMap();
+			} 
+			
+			return status;
+		} catch (Exception e) {
+			mesg = "Error ("+e.getMessage()+")";
+			console(1,"Error validaResponse ("+e.getMessage()+")");
+			return 1;
+		}
+	}
+	
 	public String getUpdateString(String oldS, String newS, int flag) {
 		switch (flag) {
 			case 0:
@@ -242,10 +264,11 @@ public class Rutinas {
     	}
     }
     
-    public String msgResponse(String status, String data) {
+    public String msgResponse(int status, String mesg, String data) {
         JSONObject jHeader = new JSONObject();
         
         jHeader.put("data", data);
+        jHeader.put("mesg", mesg);
         jHeader.put("status", status);
 
         return jHeader.toString();

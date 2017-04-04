@@ -8,8 +8,10 @@ import java.util.TimerTask;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
+import org.json.JSONObject;
 
 import abt.srvProject.model.Module;
+import abt.srvProject.model.Task;
 import abt.srvProject.srvRutinas.Rutinas;
 import abt.srvProject.utiles.GlobalArea;
 import abt.srvProject.utiles.Procedures;
@@ -73,12 +75,13 @@ public class srvSync extends Thread{
         	module.setTxp(gDatos.getInfo().getTxpSync());
         }
         
-        public void run() {
+		public void run() {
         	try {
         		/**
         		 * Inicia ciclo del Modulo
         		 */
         		logger.info("Iniciando ciclo "+MODULE);
+        		
         		module.setLastFecIni(mylib.getDateNow());
         		gDatos.getMapModule().put(MODULE, module);
         		
@@ -94,8 +97,20 @@ public class srvSync extends Thread{
         				//la habilitación del servicio
         				//la lista de clientes
         				//el map de procesos asignados
+        				//El retorno debe venir un status=0
+        				//data debe contener el objeto service
         				
+        				int status = getStatus(dResponse);
+        				String mesg = getMesg(dResponse);
+        				String data = getData(dResponse);
         				
+        				if (status==0) {
+        					loadNewDataService(data);
+        					
+        				} else {
+        					logger.error("Error respuesta status: "+status+" mesg: "+mesg);
+        				}
+        				        				
         			} else {
         				//Respuesta nula
         				logger.error("No hay respuesta desde Monitor");
@@ -117,4 +132,74 @@ public class srvSync extends Thread{
         	}
         }
     }
+    
+    static private int getStatus(String dResponse) throws Exception {
+    	try {
+    		JSONObject jo = new JSONObject(dResponse);
+    		
+    		return jo.getInt("status"); 
+    		
+    	} catch (Exception e) {
+    		throw new Exception(e.getMessage());
+    	}
+    }
+    
+    static private String getMesg(String dResponse) throws Exception {
+    	try {
+    		JSONObject jo = new JSONObject(dResponse);
+    		
+    		return jo.getString("mesg");
+    		
+    	} catch (Exception e) {
+    		throw new Exception(e.getMessage());
+    	}
+    }
+
+    static private String getData(String dResponse) throws Exception {
+    	try {
+    		JSONObject jo = new JSONObject(dResponse);
+    		
+    		return jo.getString("data");
+    		
+    	} catch (Exception e) {
+    		throw new Exception(e.getMessage());
+    	}
+    }
+    
+    static private void loadTaskService(String data) throws Exception {
+    	try {
+    		JSONObject jData = new JSONObject(data);
+    		JSONObject jTask = jData.getJSONObject("task");
+    		
+    		mylib.console("jtask: "+jTask.toString());
+    		
+    		Map<String, Task> mapT = new HashMap<>();
+    		
+    		mapT = mylib.serializeJSonStringToObject(jTask, Map.class);
+    		
+    		gDatos.updateService(map);
+    		
+    	} catch (Exception e) {
+    		throw new Exception(e.getMessage());
+    	}
+    }
+    
+    static private void loadNewDataService(String data) throws Exception {
+    	try {
+    		JSONObject jData = new JSONObject(data);
+    		JSONObject jService = jData.getJSONObject("service");
+    		
+    		mylib.console("jservice: "+jService.toString());
+    		
+    		Map<String, Object> map = new HashMap<>();
+    		
+    		map = jService.toMap();
+    		
+    		gDatos.updateService(map);
+    		
+    	} catch (Exception e) {
+    		throw new Exception(e.getMessage());
+    	}
+    }
+
 }

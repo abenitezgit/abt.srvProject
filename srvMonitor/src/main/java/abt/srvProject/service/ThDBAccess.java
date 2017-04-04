@@ -97,8 +97,8 @@ public class ThDBAccess extends Thread{
         		//Recupera Datos de Servicios
         		loadServicesParam();
         		
-        		//Recupera ultimo TaskID
-        		syncTask();
+        		//Sincroniza GroupControl y ProcControl con DB
+        		syncProcessControl();
         		
         		mylib.console("services: "+mylib.serializeObjectToJSon(gDatos.getMapService(), true));
 
@@ -127,7 +127,7 @@ public class ThDBAccess extends Thread{
         }
     }
     
-    static private void syncTask() throws Exception {
+    static private void syncProcessControl() throws Exception {
     	try {
     		MetaData dbConn = new MetaData(gDatos);
     		MetaQuery dbQuery = new MetaQuery(gDatos.getInfo().getDbType());
@@ -166,7 +166,7 @@ public class ThDBAccess extends Thread{
     					asignaTypeProc(service, rs.getString("srvTypeProc"));
     					asignaCliProc(service, rs.getString("srvTypeProc"));
     					
-    					//logger.info("Agregando servicio: "+mylib.serializeObjectToJSon(service, false));
+    					logger.info("Agregando servicio 1: "+mylib.serializeObjectToJSon(service, false));
     					gDatos.updateMapService(service.getSrvId(), service);
     					
     				}
@@ -176,34 +176,45 @@ public class ThDBAccess extends Thread{
     		}
     		
     	} catch (Exception e) {
+    		logger.error("Error loadServiceParam ("+e.getMessage()+")");
     		throw new Exception(e.getMessage());
     	}
     }
     
-    static private void asignaTypeProc(Service srv, String data) {
-    	JSONArray ja = new JSONObject(data).getJSONArray("lstProc");
-    	AssignedTypeProc atp;
-    	
-    	for (int i=0; i<ja.length(); i++) {
-    		atp = new AssignedTypeProc();
-    		
-    		atp.setTypeProc(ja.getJSONObject(i).getString("typeProc"));
-    		atp.setMaxThread(ja.getJSONObject(i).getInt("maxThread"));
-    		
-    		srv.addTypeProc(atp);
+    static private void asignaTypeProc(Service srv, String data) throws Exception {
+    	try {
+	    	JSONArray ja = new JSONObject(data).getJSONArray("lstProc");
+	    	AssignedTypeProc atp;
+	    	
+	    	for (int i=0; i<ja.length(); i++) {
+	    		atp = new AssignedTypeProc();
+	    		
+	    		atp.setTypeProc(ja.getJSONObject(i).getString("typeProc"));
+	    		atp.setMaxThread(ja.getJSONObject(i).getInt("maxThread"));
+	    		
+	    		srv.addTypeProc(atp);
+	    	}
+    	} catch (Exception e) {
+    		logger.error("Error asignaTypeProc ("+e.getMessage()+")");
+    		throw new Exception(e.getMessage());
     	}
     }
     
-    static private void asignaCliProc(Service srv, String data) {
-    	JSONArray ja = new JSONObject(data).getJSONArray("lstCli");
-    	AssignedCliProc acp;
-
-    	for (int i=0; i<ja.length(); i++) {
-    		acp = new AssignedCliProc();
-    		
-    		acp.setCliID(ja.getString(i));
-    		
-    		srv.addCliProc(acp);
+    static private void asignaCliProc(Service srv, String data) throws Exception {
+    	try {
+	    	JSONArray ja = new JSONObject(data).getJSONArray("lstCli");
+	    	AssignedCliProc acp;
+	
+	    	for (int i=0; i<ja.length(); i++) {
+	    		acp = new AssignedCliProc();
+	    		
+	    		acp.setCliID(ja.getString(i));
+	    		
+	    		srv.addCliProc(acp);
+	    	}
+    	} catch (Exception e) {
+    		logger.error("Error asignaCliProc ("+e.getMessage()+")");
+    		throw new Exception(e.getMessage());
     	}
     }
 

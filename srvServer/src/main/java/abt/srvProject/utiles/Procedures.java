@@ -30,8 +30,11 @@ public class Procedures {
 		JSONObject jData = new JSONObject();
 		
 		try {
-			String data = mylib.serializeObjectToJSon(gDatos.getService(), false);
-			jData.put("service", data);
+			String service = mylib.serializeObjectToJSon(gDatos.getService(), false);
+			String task = mylib.serializeObjectToJSon(gDatos.getMapTask(), false);
+			
+			jData.put("service", service);
+			jData.put("task", task);
 			
 			jHeader.put("data", jData);
 			jHeader.put("auth", gDatos.getInfo().getAuthKey());
@@ -76,7 +79,7 @@ public class Procedures {
 	    		logger.info("MonPort: "+srvMonPort);
 	    		
 	    		try {
-		    		Socket skCliente = new Socket(srvMonIp, srvMonPort);
+					Socket skCliente = new Socket(srvMonIp, srvMonPort);
 		            OutputStream aux = skCliente.getOutputStream(); 
 		            ObjectOutputStream objOutput = new ObjectOutputStream(aux);
 		            objOutput.writeObject(dRequest);
@@ -114,9 +117,9 @@ public class Procedures {
 			mapResponse.put("mapModule", gDatos.getMapModule());
 			data = mylib.serializeObjectToJSon(mapResponse, false);
 			
-			return mylib.msgResponse("OK", data);
+			return mylib.msgResponse(0,"", data);
 		} catch (IOException e) {
-			return mylib.sendError(99, "Error proc: getStatus ("+e.getMessage()+")");
+			return mylib.msgResponse(99, "Error proc: getStatus ("+e.getMessage()+")","");
 		}
 	}
 	
@@ -128,9 +131,9 @@ public class Procedures {
 			mapResponse.put("service", gDatos.getService());
 			data = mylib.serializeObjectToJSon(mapResponse, false);
 			
-			return mylib.msgResponse("OK", data);
+			return mylib.msgResponse(0,"", data);
 		} catch (IOException e) {
-			return mylib.sendError(99, "Error proc: getService ("+e.getMessage()+")");
+			return mylib.msgResponse(99, "Error proc: getService ("+e.getMessage()+")","");
 		}
 	}
 }

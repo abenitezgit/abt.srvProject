@@ -16,6 +16,8 @@ import abt.srvProject.model.Agenda;
 import abt.srvProject.model.GroupControl;
 import abt.srvProject.model.Grupo;
 import abt.srvProject.model.Module;
+import abt.srvProject.model.ProcControl;
+import abt.srvProject.model.Task;
 import abt.srvProject.srvRutinas.Rutinas;
 import abt.srvProject.utiles.GlobalArea;
 import abt.srvProject.utiles.Procedures;
@@ -106,9 +108,6 @@ public class ThProcess extends Thread{
 	        		//Agrega los grupos encontrados a la cola de grupos activos encontrados
 	        		myproc.appendColaGruposActivos(lstGrupo);
 	        		
-	        		//muestraListaGrupoJson(mapGrupo);
-	        		//muestraListaGrupo(mapGrupo);
-	        		
 	        		mylib.console("Total Agendas encontradas: "+lstAgenda.size());
 	        		mylib.console("Total de grupos encontrados: "+lstGrupo.size());
 	        		
@@ -119,11 +118,13 @@ public class ThProcess extends Thread{
         		//Actualiza el mapa de control de procesos
         		myproc.appendNewProcess();
         		
-        		
         		muestralstProcControl();
         		
         		muestramapGroupControl();
         		
+        		myproc.appendNewTask();
+        		
+        		muestraMapTask();
         		
         		/**
         		 * Finalizando ciclo del Modulo
@@ -150,8 +151,16 @@ public class ThProcess extends Thread{
     }
     
     static void muestralstProcControl() {
-    	for (int i=0; i<gDatos.getLstProcControl().size(); i++) {
-    		mylib.console("procControl: "+gDatos.getLstProcControl().get(i).getGrpID()+"+"+gDatos.getLstProcControl().get(i).getProcID()+"+"+gDatos.getLstProcControl().get(i).getNumSecExec()+"+"+gDatos.getLstProcControl().get(i).getStatus()+"+"+gDatos.getLstProcControl().get(i).getFecIns());
+    	for (Map.Entry<String, ProcControl> mapPc : gDatos.getMapProcControl().entrySet()) {
+    		mylib.console("procControl: "+mapPc.getKey()+" - "+mapPc.getValue().getStatus());
+    	}
+    	
+    }
+    
+    static void muestraMapTask() throws IOException {
+    	for (Map.Entry<String, Task> mapT : gDatos.getMapTask().entrySet()) {
+    		mylib.console("task: "+mapT.getKey()+" srvID: "+mapT.getValue().getSrvID()+" status: "+mapT.getValue().getStatus());
+    		mylib.console("mapJson: "+mylib.serializeObjectToJSon(mapT.getValue(), false));
     	}
     }
     

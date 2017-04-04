@@ -28,7 +28,7 @@ public class GlobalArea {
 	LinkedList<Grupo> lkdGrupo = new LinkedList<Grupo>(); 
 	
 	//Objetos de Control de Procesos
-	List<ProcControl> lstProcControl = new ArrayList<>();
+	Map<String, ProcControl> mapProcControl = new HashMap<>();
 	Map<String, GroupControl> mapGroupControl = new HashMap<>();
 	Map<String, Task> mapTask = new HashMap<>();
 	
@@ -37,6 +37,14 @@ public class GlobalArea {
 	
 	public Map<String, Module> getMapModule() {
 		return mapModule;
+	}
+
+	public Map<String, ProcControl> getMapProcControl() {
+		return mapProcControl;
+	}
+
+	public void setMapProcControl(Map<String, ProcControl> mapProcControl) {
+		this.mapProcControl = mapProcControl;
 	}
 
 	public Map<String, Task> getMapTask() {
@@ -54,16 +62,6 @@ public class GlobalArea {
 
 	public void setLkdGrupo(LinkedList<Grupo> lkdGrupo) {
 		this.lkdGrupo = lkdGrupo;
-	}
-
-
-	public List<ProcControl> getLstProcControl() {
-		return lstProcControl;
-	}
-
-
-	public void setLstProcControl(List<ProcControl> lstProcControl) {
-		this.lstProcControl = lstProcControl;
 	}
 
 
@@ -101,6 +99,62 @@ public class GlobalArea {
 	
 	//Procedimientos internos
 	
+	public synchronized void updateStatusGroupControl(String key, String status) throws Exception {
+		try {
+			if (getMapGroupControl().containsKey(key)) {
+				switch (status) {
+					case "PENDING":
+						if (getMapGroupControl().get(key).getStatus().equals("UNASSIGNED")) {
+							getMapGroupControl().get(key).setStatus(status);
+						}
+						break;
+				}
+			}
+			
+		} catch (Exception e) {
+			throw new Exception(e.getMessage());
+		}
+	}
+	
+	public synchronized void updateStatusProcControl(String key, String status) throws Exception {
+		try {
+			if (getMapProcControl().containsKey(key)) {
+				getMapProcControl().get(key).setStatus(status);
+			}
+		} catch (Exception e) {
+			throw new Exception(e.getMessage());
+		}
+	}
+	
+	public synchronized void addProcControl(ProcControl pc) throws Exception {
+		try {
+			getMapProcControl().put(pc.getProcID()+":"+pc.getNumSecExec(), pc);
+		} catch (Exception e) {
+			throw new Exception(e.getMessage());
+		}
+	}
+	
+	public synchronized void addTask(ProcControl pc, String srvID) throws Exception {
+		try {
+			Task task = new Task();
+			
+			task.setFecIns(mylib.getDate());
+			task.setNumSecExec(pc.getNumSecExec());
+			task.setParam(pc.getParam());
+			task.setProcID(pc.getProcID());
+			task.setSrvID(srvID);
+			task.setStatus("PENDING");
+			task.setTypeProc(pc.getTypeProc());
+
+			String keyTask = pc.getProcID()+":"+pc.getNumSecExec();
+			mapTask.put(keyTask, task);
+			
+		} catch (Exception e) {
+			mylib.console(1,"Error addTask ("+e.getMessage()+")");
+			throw new Exception(e.getMessage());
+		}
+	}
+	
 	
 	public void addService(String key, Service srv) throws Exception {
 		try {
@@ -130,14 +184,6 @@ public class GlobalArea {
 			throw new Exception(e.getMessage());
 		}
 		
-	}
-	
-	public synchronized void addListProcControl(ProcControl pControl) throws Exception {
-		try {
-			getLstProcControl().add(pControl);
-		} catch (Exception e) {
-			throw new Exception(e.getMessage());
-		}
 	}
 	
 	public synchronized void addMapGroupControl(String key, GroupControl gControl) throws Exception {
@@ -181,7 +227,7 @@ public class GlobalArea {
 				pControl.setFecIns(mylib.getDate());
 				pControl.setParam(lstProcess.get(i).getParams());
 				pControl.setDependences(getProcDependences(lstDependences, lstProcess.get(i).getProcID()));
-				addListProcControl(pControl);
+				addProcControl(pControl);
 			}
 		} catch (Exception e) {
 			throw new Exception(e.getMessage());

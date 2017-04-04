@@ -28,9 +28,9 @@ public class DataExchange {
 			mapResponse.put("mapModule", gDatos.getMapModule());
 			data = mylib.serializeObjectToJSon(mapResponse, false);
 			
-			return mylib.msgResponse("OK", data);
+			return mylib.msgResponse(0,"", data);
 		} catch (IOException e) {
-			return mylib.sendError(99, "Error proc: getStatus ("+e.getMessage()+")");
+			return mylib.msgResponse(99, "Error proc: getStatus ("+e.getMessage()+")","");
 		}
 	}
 	
@@ -43,12 +43,12 @@ public class DataExchange {
 		String data="";
 		
 		try {
-			mapResponse.put("lstProcControl", gDatos.getLstProcControl());
+			mapResponse.put("mapProcControl", gDatos.getMapProcControl());
 			data = mylib.serializeObjectToJSon(mapResponse, false);
 			
-			return mylib.msgResponse("OK", data);
+			return mylib.msgResponse(0,"", data);
 		} catch (IOException e) {
-			return mylib.sendError(99, "Error proc: getStatus ("+e.getMessage()+")");
+			return mylib.msgResponse(99, "Error proc: getStatus ("+e.getMessage()+")","");
 		}
     	
     }
@@ -64,12 +64,12 @@ public class DataExchange {
 		String data="";
 		
 		try {
-			mapResponse.put("mapGroupControl", gDatos.getLstProcControl());
+			mapResponse.put("mapGroupControl", gDatos.getMapGroupControl());
 			data = mylib.serializeObjectToJSon(mapResponse, false);
 			
-			return mylib.msgResponse("OK", data);
+			return mylib.msgResponse(0,"", data);
 		} catch (IOException e) {
-			return mylib.sendError(99, "Error proc: getStatus ("+e.getMessage()+")");
+			return mylib.msgResponse(99, "Error proc: getStatus ("+e.getMessage()+")","");
 		}
     	
     }
@@ -83,13 +83,14 @@ public class DataExchange {
 		String data="";
 		
 		try {
-			mapResponse.put("typeProc", gDatos.getMapService().get(srvID).getLstTypeProc());
-			mapResponse.put("cliProc", gDatos.getMapService().get(srvID).getLstCliProc());
+//			mapResponse.put("typeProc", gDatos.getMapService().get(srvID).getLstTypeProc());
+			mapResponse.put("service", gDatos.getMapService().get(srvID));
 			data = mylib.serializeObjectToJSon(mapResponse, false);
 			
-			return mylib.msgResponse("OK", data);
+			return mylib.msgResponse(0,"", data);
 		} catch (IOException e) {
-			return mylib.sendError(99, "Error proc: getStatus ("+e.getMessage()+")");
+			mylib.console(1,"Error sendService ("+e.getMessage()+")");
+			return mylib.msgResponse(99, "Error proc: getStatus ("+e.getMessage()+")","");
 		}
     	
     }

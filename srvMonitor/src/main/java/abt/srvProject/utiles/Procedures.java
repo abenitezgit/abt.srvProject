@@ -5,8 +5,10 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.List;
+import java.util.Map;
 import java.util.SimpleTimeZone;
 import java.util.TimeZone;
+import java.util.stream.Collectors;
 
 import abt.srvProject.dataAccess.MetaData;
 import abt.srvProject.dataAccess.MetaQuery;
@@ -15,6 +17,7 @@ import abt.srvProject.model.Dependence;
 import abt.srvProject.model.Grupo;
 import abt.srvProject.model.Mov;
 import abt.srvProject.model.MovMatch;
+import abt.srvProject.model.ProcControl;
 import abt.srvProject.model.Proceso;
 import abt.srvProject.srvRutinas.Rutinas;
 
@@ -24,6 +27,63 @@ public class Procedures {
 	
 	public Procedures(GlobalArea m) {
 		gDatos = m;
+	}
+	
+	public boolean isDependencesFinished(String keyProc, ProcControl pc) throws Exception {
+		try {
+			boolean response = true;
+			
+			List<String> depProc = pc.getDependences();
+			if (depProc.size()>0) {
+				for (int i=0; i<depProc.size(); i++) {
+					String procID = depProc.get(i);
+					
+					boolean uStatus = gDatos.getMapProcControl().get(procID+":"+pc.getNumSecExec()).getuStatus().equals("FINISHED");
+					response = response && uStatus;
+				}
+			}
+
+			return response;
+			
+		} catch (Exception e) {
+			mylib.console(1,"Error isDependencesFinished ("+e.getMessage()+")");
+			throw new Exception(e.getMessage());
+		}
+	}
+	
+	public void appendNewTask() throws Exception {
+		try {
+			//Filtra lista de ProcControl con status UNASSIGNED
+			Map<String, ProcControl> map_pc = gDatos.getMapProcControl()
+												.entrySet()
+												.stream()
+												.filter(p -> p.getValue().getStatus().equals("UNASSIGNED"))
+												.collect(Collectors.toMap(map -> map.getKey() , map -> map.getValue()));
+			if (map_pc.size()>0) {
+				for (Map.Entry<String, ProcControl> mapUA : map_pc.entrySet()) {
+					//Valida si el proceso tiene dependencias las finalizadas para generar un TASK
+					if (isDependencesFinished(mapUA.getKey(), mapUA.getValue())) {
+						//Recupera un serverID para crear TASK
+						String srvID = "srv00001"; //getServerAssigned(mapUA.getValue().getTypeProc());
+						if (!mylib.isNull(srvID)) {
+							//Se crea Task asignaa a un servidor
+							gDatos.addTask(mapUA.getValue(), srvID);
+							gDatos.updateStatusProcControl(mapUA.getKey(),"PENDING");
+							gDatos.updateStatusGroupControl(mapUA.getValue().getGrpID()+":"+mapUA.getValue().getNumSecExec(), "PENDING");
+						} else {
+							//No  hay servidores disponibles para asignar Tarea
+						}
+					} else {
+						//Dependencias no han finalizado
+					}
+				}
+			} else {
+				mylib.console("No hay procesos para asignar Task");
+			}
+			
+		} catch (Exception e) {
+			throw new Exception(e.getMessage());
+		}
 	}
 	
 	public void appendNewProcess() throws Exception {
@@ -38,7 +98,7 @@ public class Procedures {
 					grupo = gDatos.getLkdGrupo().remove();
 					
 					//Valida si grupo ya está inscrito en groupControl
-					String key=grupo.getGrpID()+"+"+grupo.getNumSecExec();
+					String key=grupo.getGrpID()+":"+grupo.getNumSecExec();
 					if (!gDatos.isExistGrupoIns(key)) {
 						gDatos.inscribeGroup(key);
 						gDatos.inscribeProcess(grupo);
