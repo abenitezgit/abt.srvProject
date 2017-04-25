@@ -6,7 +6,7 @@ public class GroupControl {
 	String procID;
 	int order;
 	Date fecIns;
-	Date fecStart;
+	Date fecUpdate;
 	Date fecFinished;
 	String status;
 	String uStatus;
@@ -17,6 +17,12 @@ public class GroupControl {
 	
 	public String getProcID() {
 		return procID;
+	}
+	public Date getFecUpdate() {
+		return fecUpdate;
+	}
+	public void setFecUpdate(Date fecUpdate) {
+		this.fecUpdate = fecUpdate;
 	}
 	public void setProcID(String procID) {
 		this.procID = procID;
@@ -32,12 +38,6 @@ public class GroupControl {
 	}
 	public void setFecIns(Date fecIns) {
 		this.fecIns = fecIns;
-	}
-	public Date getFecStart() {
-		return fecStart;
-	}
-	public void setFecStart(Date fecStart) {
-		this.fecStart = fecStart;
 	}
 	public Date getFecFinished() {
 		return fecFinished;

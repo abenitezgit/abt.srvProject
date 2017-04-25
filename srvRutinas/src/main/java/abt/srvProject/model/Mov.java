@@ -43,9 +43,6 @@ public class Mov {
     String DUSERNAME;
     String DUSERPASS;
     String DUSERTYPE;
-    int rowsRead;
-    int rowsLoad;
-    int intentos;
     String uStatus;
     int append;
     
@@ -72,30 +69,6 @@ public class Mov {
 
 	public void setuStatus(String uStatus) {
 		this.uStatus = uStatus;
-	}
-
-	public int getRowsRead() {
-		return rowsRead;
-	}
-
-	public void setRowsRead(int rowsRead) {
-		this.rowsRead = rowsRead;
-	}
-
-	public int getRowsLoad() {
-		return rowsLoad;
-	}
-
-	public void setRowsLoad(int rowsLoad) {
-		this.rowsLoad = rowsLoad;
-	}
-
-	public int getIntentos() {
-		return intentos;
-	}
-
-	public void setIntentos(int intentos) {
-		this.intentos = intentos;
 	}
 
 	public void setMovID(String movID) {

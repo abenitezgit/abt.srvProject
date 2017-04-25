@@ -10,12 +10,13 @@ import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 
 import abt.srvProject.model.Module;
+import abt.srvProject.model.Task;
 import abt.srvProject.srvRutinas.Rutinas;
 import abt.srvProject.utiles.GlobalArea;
 import abt.srvProject.utiles.Procedures;
 
-public class srvRunProcess extends Thread{
-	static final String MODULE="srvRunProcess";
+public class ThRunProcess extends Thread{
+	static final String MODULE="ThRunProcess";
 	static Logger logger = Logger.getLogger(MODULE);
 	static Rutinas mylib = new Rutinas();
 	static Procedures myproc;
@@ -24,7 +25,7 @@ public class srvRunProcess extends Thread{
 	//Control de Ejecucion del servicio
 	boolean init;
 	
-	public srvRunProcess(GlobalArea m) {
+	public ThRunProcess(GlobalArea m) {
 		try {
 			gDatos = m;
 			myproc = new Procedures(gDatos);
@@ -64,7 +65,6 @@ public class srvRunProcess extends Thread{
     static class mainTask extends TimerTask {
     	Map<String, Boolean> mapThread = new HashMap<>();
     	Module module = new Module();
-    	Thread thListener;
 
         //Constructor de la clase
         public mainTask() {
@@ -82,7 +82,29 @@ public class srvRunProcess extends Thread{
         		module.setLastFecIni(mylib.getDateNow());
         		gDatos.getMapModule().put(MODULE, module);
         		
-        		//Revisa Mapa de Task para ver si hay procesos por ejecutar.
+        		//Revisala cola de Task para actualizar mapa local de Task
+        		int numTaskPool = getNumTaskPool();
+        		logger.info("Total de Task en Cola al inicio de extraccion: "+numTaskPool);
+        		if (numTaskPool>0) {
+        			for (int i=0; i< numTaskPool; i++) {
+        				addNewTaskPool();
+        			}
+        		} else {
+        			//No hay nuevos task informados
+        			logger.info("No hay nuevos Task informados");
+        		}
+        		logger.info("Total de Task en Cola al finalizar extraccion: "+getNumTaskPool());
+        		
+        		logger.info("Total de Task para su ejecución: "+getNumTaskMap());
+        		muestraMapTask();
+        		
+        		//Revisa el Map de Ejecucion de Task
+        		if (getNumTaskMap()>0) {
+        			
+        		} else {
+        			//No hay procesos para ejecutar
+        			logger.info("No hay nuevos procesos para ejecutar");
+        		}
         		
         		
         		/**
@@ -96,5 +118,55 @@ public class srvRunProcess extends Thread{
         		logger.error("Error inesperado "+MODULE+" ("+e.getMessage()+")");
         	}
         }
+    }
+    
+    static private void muestraMapTask() {
+    	for (Map.Entry<String, Task> mapTask : gDatos.getMapTask().entrySet()) {
+    		logger.info("Task Process: "+mapTask.getKey()+" status: "+mapTask.getValue().getStatus());
+    	}
+    }
+    
+    static private int getNumTaskMap() throws Exception {
+    	try {
+    		int numTask = gDatos.getMapTask().size();
+    		return numTask;
+    	} catch (Exception e) {
+    		throw new Exception(e.getMessage());
+    	}
+    }
+    
+    static private int getNumTaskPool() throws Exception {
+    	try {
+    		int numTask = gDatos.getLkdTask().size();
+    		return numTask;
+    	} catch (Exception e) {
+    		throw new Exception(e.getMessage());
+    	}
+    }
+    
+    static private void addNewTaskPool() throws Exception {
+    	try {
+    		Task tsk = new Task();
+    		tsk = gDatos.getItemTaskPool();
+    		
+    		String keyTask = tsk.getProcID()+":"+tsk.getNumSecExec();
+    		
+    		logger.info("Se ha extraido el TaskPool: "+keyTask);
+    		
+    		if (!gDatos.getMapTask().containsKey(keyTask)) {
+    			tsk.setStatus("READY");
+    			tsk.setFecUpdate(mylib.getDate());
+    			tsk.setFecIns(mylib.getDate());
+
+    			gDatos.addNewTaskMap(tsk);
+    			logger.info("Se ingreso nuevo Task: "+keyTask);
+    		} else {
+    			//Task ya fue ingresado al map de ejecuion de Task
+    		}
+    		
+    	} catch (Exception e) {
+    		logger.error("Error addNewTaskPool ("+e.getMessage()+")");
+    		throw new Exception(e.getMessage());
+    	}
     }
 }

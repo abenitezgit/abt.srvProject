@@ -9,6 +9,177 @@ public class MetaQuery {
 		this.dbType = dbType;
 	}
 	
+	public String getSqlInsertGroupControl() {
+		String vSQL="";
+		switch (dbType) {
+		case "mySQL":
+			vSQL = "insert into srvConf.tb_groupControl ( "
+					+ " grpID, "
+					+ " numSecExec, "
+					+ " procID, "
+					+ " norder, "
+					+ " fecIns, "
+					+ " fecFinished, "
+					+ " status, "
+					+ " uStatus, "
+					+ " errCode, "
+					+ " errMesg, "
+					+ " fecUpdate ) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ";
+			break;
+		default:
+			break;
+		}
+		return vSQL;
+	}
+	
+	public String getSqlInsertProcControl() {
+		String vSQL="";
+		switch (dbType) {
+		case "mySQL":
+			vSQL = "insert into srvConf.tb_procControl ( "
+					+ " grpID, "
+					+ " numSecExec, "
+					+ " procID, "
+					+ " typeProc, "
+					+ " norder, "
+					+ " fecIns, "
+					+ " fecFinished, "
+					+ " status, "
+					+ " uStatus, "
+					+ " errCode, "
+					+ " errMesg, "
+					+ " fecUpdate ) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ";
+			break;
+		default:
+			break;
+		}
+		return vSQL;
+	}
+	
+	public String getSqlUpdateProcControl(String key) {
+		String vSQL="";
+		String[] param = key.split(":");
+		switch (dbType) {
+		case "mySQL":
+			
+			vSQL = "update srvConf.tb_procControl set "
+					+ " fecFinished = ?, "
+					+ " status = ?, "
+					+ " uStatus = ?, "
+					+ " errCode = ?, "
+					+ " errMesg = ?, "
+					+ " fecUpdate = ? "
+					+ "		where procID = '"+param[0]+"' and numSecExec='"+param[1]+"'";
+			break;
+		default:
+			break;
+		}
+		return vSQL;
+	}
+	
+	public String getSqlUpdateGroupControl(String key) {
+		String vSQL="";
+		String[] param = key.split(":");
+		switch (dbType) {
+		case "mySQL":
+			
+			vSQL = "update srvConf.tb_groupControl set "
+					+ " fecFinished = ?, "
+					+ " status = ?, "
+					+ " uStatus = ?, "
+					+ " errCode = ?, "
+					+ " errMesg = ?, "
+					+ " fecUpdate = ? "
+					+ "		where grpID = '"+param[0]+"' and numSecExec='"+param[1]+"'";
+			break;
+		default:
+			break;
+		}
+		return vSQL;
+	}
+	
+	public String getSqlIsExistProcControl(String procID, String numSecExec) {
+		String vSQL="";
+		switch (dbType) {
+		case "mySQL":
+			vSQL = "select procID from srvConf.tb_procControl where procID='"+procID+"' and numSecExec='"+numSecExec+"'";
+			break;
+		default:
+			break;
+		}
+		return vSQL;
+	}
+	
+	public String getSqlIsExistGroupControl(String grpID, String numSecExec) {
+		String vSQL="";
+		switch (dbType) {
+		case "mySQL":
+			vSQL = "select grpID from srvConf.tb_groupControl where grpID='"+grpID+"' and numSecExec='"+numSecExec+"'";
+			break;
+		default:
+			break;
+		}
+		return vSQL;
+	}
+	
+	public String getSqlFindProcControl(String grpID, String numSecExec) {
+    	String vSQL="";
+    	switch (dbType) {
+    	case "mySQL":
+    		vSQL = 	"SELECT " + 
+					" grpID, " + 
+					" numSecExec, " + 
+					" procID, " + 
+					" typeProc, " + 
+					" norder, " +
+					" fecIns, " + 
+					" fecUpdate, " + 
+					" fecFinished, " + 
+					" status, " + 
+					" uStatus, " + 
+					" errCode, " + 
+					" errMesg " +
+					" FROM srvConf.tb_procControl " +
+					" where "
+					+ " grpID='"+grpID+"' "
+					+ " and numSecExec='"+numSecExec+"' "
+					+ " order by norder asc" ; 
+    		break;
+		default:
+			vSQL="";
+			break;
+    	}
+    	return vSQL;
+		
+	}
+	
+	public String getSqlFindGroupControl() {
+    	String vSQL="";
+    	switch (dbType) {
+    	case "mySQL":
+    		vSQL = 	"SELECT " + 
+					" grpID, " + 
+					" numSecExec, " + 
+					" procID, " + 
+					" norder, " +
+					" fecIns, " + 
+					" fecUpdate, " + 
+					" fecFinished, " + 
+					" status, " + 
+					" uStatus, " + 
+					" errCode, " + 
+					" errMesg " +
+					" FROM srvConf.tb_groupControl " +
+					" where status<>'FINISHED'" ; 
+    		break;
+		default:
+			vSQL="";
+			break;
+    	}
+    	return vSQL;
+		
+	}
+	
 	public String getSqlFindServices() {
     	String vSQL="";
     	switch (dbType) {
@@ -47,7 +218,114 @@ public class MetaQuery {
     	
     	return vSQL;
     }
+	
+    public String getSqlFindMOVMatch(String movID) {
+    	String vSQL="";
+    	switch (dbType) {
+    	case "mySQL":
+    		vSQL = 	"select " +
+                    "  MOVID, MOVORDER, SOURCEFIELD, SOURCELENGTH, SOURCETYPE, " +
+                    "  DESTFIELD, DESTLENGTH, DESTTYPE " +
+                    "from  " +
+                    "  TB_MOVMATCH " +
+                    "where " +
+                    "  MOVID='"+ movID  +"' " +
+                    "  And ENABLE=1 order by MOVORDER";
+    		break;
+		default:
+			vSQL="";
+			break;
+    	}
+    	
+    	return vSQL;
+    }
+    
+    public String getSqlFindEtlMatch(String etlID) {
+    	String vSQL="";
+    	switch (dbType) {
+    	case "mySQL":
+    		vSQL = 	"select " +
+                    "  ETLORDER, ETLSOURCEFIELD, ETLSOURCELENGTH, ETLSOURCETYPE, " +
+                    "  ETLDESTFIELD, ETLDESTLENGTH, ETLDESTTYPE, ETLENABLE " +
+                    "from  " +
+                    "  tb_etlMatch " +
+                    "where " +
+                    "  ETLID='"+ etlID  +"' " +
+                    "  And ETLENABLE=1 order by ETLORDER";
+    		break;
+		default:
+			vSQL="";
+			break;
+    	}
+    	
+    	return vSQL;
+    }
 
+	public String getSqlFindEtl(String procID) {
+    	String vSQL="";
+    	switch (dbType) {
+    	case "mySQL":
+    		vSQL = 	"select	cfg.etlID etlID, "
+    				+ "		cfg.etlDesc etlDesc,"
+    				+ "		cfg.etlEnable etlEnable, "
+    				+ "		cli.cliDesc cliDesc, "
+                    + "		cfg.etlIntervalFieldKey fieldKey, "
+                    + " 	cfg.etlIntervalFieldKeyType fieldType, "
+                    + " 	cfg.etlIntervalTimeGap timeGap, "
+                    + "		cfg.etlIntervalTimeGenInterval timeGen, "
+                    + "		cfg.etlIntervalTimePeriod timePeriod, "
+                    + "		cfg.etlIntervalUnitMeasure unitMeasure, "
+                    + "		cfg.etlQueryWhereActive whereActive, "
+                    + "		cfg.etlQueryBody queryBody, "
+                    + "		cfg.etlSourceTbName sTbName,  "
+                    + "		cfg.etlDestTbName dTbName, "
+                    + "		cfg.etlLastNumSecExec lastNumSecExec, "
+                    + "		srv.serverIp sIp,  "
+                    + "		db.DbDesc sDbDesc, "
+                    + "		db.DbName sDbName, "
+                    + "		db.dbType sDbType, "
+                    + "		db.dbPort sDbPort, "
+                    + "		db.dbInstance sDbInstance, "
+                    + "		db.dbFileConf sDBConf, "
+                    + "		db.dbJDBCString sDbJDBC, "
+                    + "		usr.userName sUserName, "
+                    + "		usr.userPass sUserPass, "
+                    + "		usr.userType sUserType, "
+                    + "		srvD.serverIp dIp, "
+                    + "		dbD.DbDesc dDbDesc, "
+                    + "		dbD.DbName dDbName, "
+                    + "		dbD.DbType dDbType, "
+                    + "		dbD.DbPort dDbPort, "
+                    + "		dbD.DbInstance dDbInstance, "
+                    + "		dbD.DbFileConf dDbConf, "
+                    + "		dbD.DbJDBCString dDbJDBC, "
+                    + "		usrD.userName dUserName, "
+                    + "		usrD.userPass dUserPass, "
+                    + "		usrD.UserType dUserType "
+                    + "	from "
+                    + "		tb_etl cfg, "
+                    + "		tb_server srv, "
+                    + "		tb_dbase db, "
+                    + "		tb_client cli, "
+                    + "		tb_user usr, "
+                    + "		tb_server srvD, "
+                    + "		tb_dbase dbD, "
+                    + "		tb_user usrD "
+                    + "	where "
+                    + "		cfg.etlCliID = cli.CLIID "
+                    + "		And cfg.etlSourceServerID = srv.ServerID "
+                    + "		And cfg.ETLSourceDBID = db.DBID "
+                    + "		And cfg.ETLSOURCEUSERID = usr.USERID "
+                    + "		And cfg.ETLDESTSERVERID = srvD.SERVERID "
+                    + "		And cfg.ETLDESTDBID = dbD.DBID "
+                    + "		And cfg.ETLDESTUSERID = usrD.USERID "
+                    + "		And cfg.ETLID='"+ procID +"'";
+    		break;
+		default:
+			break;
+    	}
+    	return vSQL;
+	}
 	
 	public String getSqlFindMov(String procID) {
     	String vSQL="";

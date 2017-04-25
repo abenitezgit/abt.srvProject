@@ -108,6 +108,9 @@ public class AppMon {
     	
     	gDatos.updateService(srv);
     	
+    	//Inicializa variable global de sync metadata
+    	gDatos.setSyncMetadata(false);
+    	
     }
     
     static private Properties getFileConf(Map<String,String> mainParam) throws Exception {

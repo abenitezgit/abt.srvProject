@@ -16,8 +16,8 @@ import abt.srvProject.srvRutinas.Rutinas;
 import abt.srvProject.utiles.GlobalArea;
 import abt.srvProject.utiles.Procedures;
 
-public class srvSync extends Thread{
-	static final String MODULE="srvSync";
+public class ThSync extends Thread{
+	static final String MODULE="ThSync";
 	static Logger logger = Logger.getLogger(MODULE);
 	static Rutinas mylib = new Rutinas();
 	static Procedures myproc;
@@ -26,7 +26,7 @@ public class srvSync extends Thread{
 	//Control de Ejecucion del servicio
 	boolean init;
 	
-	public srvSync(GlobalArea m) {
+	public ThSync(GlobalArea m) {
 		try {
 			gDatos = m;
 			myproc = new Procedures(gDatos);
@@ -85,6 +85,7 @@ public class srvSync extends Thread{
         		module.setLastFecIni(mylib.getDateNow());
         		gDatos.getMapModule().put(MODULE, module);
         		
+        		//Prepara data request
         		String dRequest = myproc.genMsgRequestSync();
         		logger.info("Data Request: "+dRequest);
         		
@@ -106,7 +107,7 @@ public class srvSync extends Thread{
         				
         				if (status==0) {
         					loadNewDataService(data);
-        					
+        					loadTaskService(data);
         				} else {
         					logger.error("Error respuesta status: "+status+" mesg: "+mesg);
         				}
@@ -171,14 +172,14 @@ public class srvSync extends Thread{
     		JSONObject jData = new JSONObject(data);
     		JSONObject jTask = jData.getJSONObject("task");
     		
-    		mylib.console("jtask: "+jTask.toString());
+    		//Carga Mapa Local de Task desde Monitor
+    		@SuppressWarnings("unchecked")
+			Map<String, Task> mapT = (Map<String, Task>) mylib.serializeJSonStringToObject(jTask.toString(), Map.class);
     		
-    		Map<String, Task> mapT = new HashMap<>();
+    		//srvServer: Actualiza los Task pool locales desde monitor
+    		gDatos.updateLkdTask(mapT);
     		
-    		mapT = mylib.serializeJSonStringToObject(jTask, Map.class);
-    		
-    		gDatos.updateService(map);
-    		
+    	    		
     	} catch (Exception e) {
     		throw new Exception(e.getMessage());
     	}
@@ -191,10 +192,11 @@ public class srvSync extends Thread{
     		
     		mylib.console("jservice: "+jService.toString());
     		
+    		//se mapean los parametros y valores obtenidos en un HashMap
     		Map<String, Object> map = new HashMap<>();
-    		
     		map = jService.toMap();
-    		
+
+    		//se manda a actualizar los valores recuperados
     		gDatos.updateService(map);
     		
     	} catch (Exception e) {

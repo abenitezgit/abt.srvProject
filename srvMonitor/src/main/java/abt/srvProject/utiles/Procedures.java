@@ -1,9 +1,12 @@
 package abt.srvProject.utiles;
 
 import java.sql.ResultSet;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.SimpleTimeZone;
@@ -14,11 +17,15 @@ import abt.srvProject.dataAccess.MetaData;
 import abt.srvProject.dataAccess.MetaQuery;
 import abt.srvProject.model.Agenda;
 import abt.srvProject.model.Dependence;
+import abt.srvProject.model.Etl;
+import abt.srvProject.model.EtlMatch;
 import abt.srvProject.model.Grupo;
+import abt.srvProject.model.Interval;
 import abt.srvProject.model.Mov;
 import abt.srvProject.model.MovMatch;
 import abt.srvProject.model.ProcControl;
 import abt.srvProject.model.Proceso;
+import abt.srvProject.model.Task;
 import abt.srvProject.srvRutinas.Rutinas;
 
 public class Procedures {
@@ -29,6 +36,51 @@ public class Procedures {
 		gDatos = m;
 	}
 	
+
+
+	
+	public void updateReceiveTask(Map<String, Task> mTask) throws Exception {
+		try {
+			if (mTask.size()>0) {
+				for (Map.Entry<String, Task> loopTask : mTask.entrySet()) {
+					Task pTask = new Task();
+					String pTaskString = mylib.serializeObjectToJSon(loopTask.getValue(), false);
+					pTask = (Task) mylib.serializeJSonStringToObject(pTaskString, Task.class);
+					if (gDatos.isExistTask(loopTask.getKey())) {
+						gDatos.updateStatusTask(loopTask.getKey(), pTask);
+						gDatos.updateStatusProcControl(loopTask.getKey(), pTask);
+					} else {
+						//Tarea no fue encontrada en master
+						//se sincronizará
+						gDatos.addTask(pTask);
+					}
+				}
+			} else {
+				//No hay Task informados desde servicios
+			}
+		} catch (Exception e) {
+			mylib.console(1,"Error updateReceiveTask ("+e.getMessage()+")");
+			throw new Exception(e.getMessage());
+		}
+	}
+	
+	public Map<String, Task> getMapTaskServicePending(String srvID) throws Exception {
+		try {
+			//Variable local de paso
+			Map<String, Task> mapT = new HashMap<>();
+			
+			mapT = gDatos.getMapTask()
+					.entrySet()
+					.stream()
+					.filter(p -> p.getValue().getSrvID().equals(srvID) && p.getValue().getStatus().equals("PENDING"))
+					.collect(Collectors.toMap(p -> p.getKey(), p -> p.getValue()));
+			
+			return mapT;
+		} catch (Exception e) {
+			throw new Exception(e.getMessage());
+		}
+	}
+	
 	public boolean isDependencesFinished(String keyProc, ProcControl pc) throws Exception {
 		try {
 			boolean response = true;
@@ -36,10 +88,44 @@ public class Procedures {
 			List<String> depProc = pc.getDependences();
 			if (depProc.size()>0) {
 				for (int i=0; i<depProc.size(); i++) {
-					String procID = depProc.get(i);
+					String[] split = depProc.get(i).split(":");
+					String procID = split[0];
+					String critical = split[1];
 					
-					boolean uStatus = gDatos.getMapProcControl().get(procID+":"+pc.getNumSecExec()).getuStatus().equals("FINISHED");
-					response = response && uStatus;
+					boolean isFin = true;
+					String uStatus;
+					String status;
+					
+					try {
+						uStatus = gDatos.getMapProcControl().get(procID+":"+pc.getNumSecExec()).getuStatus();
+						
+						try {
+							status = gDatos.getMapProcControl().get(procID+":"+pc.getNumSecExec()).getStatus();
+							
+							if (uStatus.equals("FINISHED")) {
+								if (status.equals("ERROR")) {
+									if (critical.equals("1")) {
+										isFin = false;
+									} else {
+										isFin = true;
+									}
+								} else {
+									//status="SUCCESS"
+									isFin=true;
+								}
+							} else {
+								isFin = false;
+							}
+							
+						} catch (Exception e) {
+							isFin = false;
+						}
+					}
+					catch (Exception e) {
+						isFin = false;
+					}
+					
+					response = response && isFin;
 				}
 			}
 
@@ -57,21 +143,48 @@ public class Procedures {
 			Map<String, ProcControl> map_pc = gDatos.getMapProcControl()
 												.entrySet()
 												.stream()
-												.filter(p -> p.getValue().getStatus().equals("UNASSIGNED"))
+												.filter(p -> p.getValue().getStatus().equals("UNASSIGNED") || p.getValue().getTypeProc().equals("ETL"))
 												.collect(Collectors.toMap(map -> map.getKey() , map -> map.getValue()));
 			if (map_pc.size()>0) {
 				for (Map.Entry<String, ProcControl> mapUA : map_pc.entrySet()) {
-					//Valida si el proceso tiene dependencias las finalizadas para generar un TASK
+					//Valida si el proceso tiene dependencias finalizadas para generar un TASK
 					if (isDependencesFinished(mapUA.getKey(), mapUA.getValue())) {
-						//Recupera un serverID para crear TASK
-						String srvID = "srv00001"; //getServerAssigned(mapUA.getValue().getTypeProc());
-						if (!mylib.isNull(srvID)) {
-							//Se crea Task asignaa a un servidor
-							gDatos.addTask(mapUA.getValue(), srvID);
-							gDatos.updateStatusProcControl(mapUA.getKey(),"PENDING");
-							gDatos.updateStatusGroupControl(mapUA.getValue().getGrpID()+":"+mapUA.getValue().getNumSecExec(), "PENDING");
-						} else {
-							//No  hay servidores disponibles para asignar Tarea
+						//Variable de control para crear Task y recuperar intervalID de procesos ETL
+						Interval interval = new Interval();
+						boolean isGenTask = true;
+						
+						//Valida para procesos ETL si existen intervalos pendientes para poder
+						//crear el Task correspondiente
+						//Si no hay intervalos el procID debe marcarse como finalizado
+						switch (mapUA.getValue().getTypeProc()) {
+						case "ETL":
+							if (!mapUA.getValue().getStatus().equals("FINISHED")) {
+								interval = gDatos.getIntervalTask(mapUA.getValue());
+								if (interval != null) {
+									isGenTask = true; 
+								} else {
+									isGenTask = false;
+									gDatos.updateStatusProcControl(mapUA.getKey(),"FINISHED");
+								}
+							}
+							break;
+						default:
+							isGenTask = true;
+							interval = null;
+						}
+						
+						if (isGenTask) {
+							//Recupera un serverID para crear TASK
+							String srvID = "srv00001"; //getServerAssigned(mapUA.getValue().getTypeProc());
+
+							//Si se recupero un srvID
+							if (!mylib.isNull(srvID)) {
+								//Se crea Task asignado a un servidor
+								gDatos.addTask(mapUA.getValue(), srvID, interval);
+								gDatos.updateStatusProcControl(mapUA.getKey(),"PENDING");
+							} else {
+								//No  hay servidores disponibles para asignar Tarea
+							}
 						}
 					} else {
 						//Dependencias no han finalizado
@@ -261,8 +374,7 @@ public class Procedures {
         	Object param;
             switch (process.getType()) {
                 case "ETL":
-                    //param = getETLDetail(process);
-                	param = null;
+                    param = getEtlDetail(process);
                     break;
                 case "MOV":
                 	param = getMovDetail(process);
@@ -275,6 +387,75 @@ public class Procedures {
         	throw new Exception(e.getMessage());
         }
     }
+	
+	public List<EtlMatch> getListaEtlMatch(String etlID) throws Exception {
+		try {
+			MetaData dbConn = new MetaData(gDatos);
+			MetaQuery dbQuery = new MetaQuery(gDatos.getInfo().getDbType());
+			List<EtlMatch> lstEtlMatch = new ArrayList<>();
+			EtlMatch etlMatch;
+			
+			dbConn.open();
+			
+			if (dbConn.isConnected()) {
+				String vSql = dbQuery.getSqlFindEtlMatch(etlID);
+				if (dbConn.executeQuery(vSql)) {
+					ResultSet rs = dbConn.getQuery();
+					while (rs.next()) {
+						etlMatch = new EtlMatch();
+						mylib.parseaEtlMatch(etlMatch, rs);
+						lstEtlMatch.add(etlMatch);
+					}
+					rs.close();
+				} else {
+					//no pudo ejecutar la query
+				}
+				dbConn.close();
+			} else {
+				//No pudo conectarse a la BD
+			}
+			return lstEtlMatch;
+		} catch (Exception e) {
+			throw new Exception(e.getMessage());
+		}
+	}
+
+	
+	public Etl getEtlDetail(Proceso process) throws Exception {
+		try {
+			MetaData dbConn = new MetaData(gDatos);
+			MetaQuery dbQuery = new MetaQuery(gDatos.getInfo().getDbType());
+			Etl etl = new Etl();
+			
+			
+			dbConn.open();
+			
+			if (dbConn.isConnected()) {
+				String vSql = dbQuery.getSqlFindEtl(process.getProcID());
+				if (dbConn.executeQuery(vSql)) {
+					ResultSet rs = dbConn.getQuery();
+					if (rs.next()) {
+						mylib.parseaEtl(etl, rs);
+						
+						//Recupera Match del Etl
+						etl.setLstEtlMatch(getListaEtlMatch(etl.getEtlID()));
+						
+					} else {
+						//No hay registros para la consulta realizada
+					}
+				} else {
+					//No pudo ejecutar query
+				}
+				dbConn.close();
+			} else {
+				//No pudo conectarse a la base de datos
+			}
+			
+			return etl;
+		} catch (Exception e) {
+			throw new Exception(e.getMessage());
+		}
+	}
 	
 	public Mov getMovDetail(Proceso process) throws Exception {
 		try {
@@ -469,5 +650,5 @@ public class Procedures {
     	}
     }
     
-	
+
 }

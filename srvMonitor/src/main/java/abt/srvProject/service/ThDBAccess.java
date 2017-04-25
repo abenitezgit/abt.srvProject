@@ -1,5 +1,6 @@
 package abt.srvProject.service;
 
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.HashMap;
 import java.util.Map;
@@ -16,7 +17,9 @@ import abt.srvProject.dataAccess.MetaData;
 import abt.srvProject.dataAccess.MetaQuery;
 import abt.srvProject.model.AssignedCliProc;
 import abt.srvProject.model.AssignedTypeProc;
+import abt.srvProject.model.GroupControl;
 import abt.srvProject.model.Module;
+import abt.srvProject.model.ProcControl;
 import abt.srvProject.model.Service;
 import abt.srvProject.srvRutinas.Rutinas;
 import abt.srvProject.utiles.GlobalArea;
@@ -93,14 +96,13 @@ public class ThDBAccess extends Thread{
         		module.setLastFecIni(mylib.getDateNow());
         		gDatos.getMapModule().put(MODULE, module);
         	
-        		
         		//Recupera Datos de Servicios
         		loadServicesParam();
         		
         		//Sincroniza GroupControl y ProcControl con DB
         		syncProcessControl();
         		
-        		mylib.console("services: "+mylib.serializeObjectToJSon(gDatos.getMapService(), true));
+        		mylib.console("services: "+mylib.serializeObjectToJSon(gDatos.getMapService(), false));
 
         		
         		/**
@@ -132,10 +134,265 @@ public class ThDBAccess extends Thread{
     		MetaData dbConn = new MetaData(gDatos);
     		MetaQuery dbQuery = new MetaQuery(gDatos.getInfo().getDbType());
     		
+			//Setea parametro syncMetadata a true
+			gDatos.setSyncMetadata(false);
+    		
+    		//Objetos de paso
+    		Map<String, GroupControl> mgc = new HashMap<>();
+    		Map<String, ProcControl> mpc = new HashMap<>();
+    		String vSql;
+    		
     		dbConn.open();
     		
     		if (dbConn.isConnected()) {
+    			/*
+    			 * Recupera todos los Grupos que tiene status<>'FINISHED'
+    			 */
+    			logger.info("Recupera todos los Grupos que tiene status<>'FINISHED'");
+    			vSql = dbQuery.getSqlFindGroupControl();
+    			if (dbConn.executeQuery(vSql)) {
+    				ResultSet rs = dbConn.getQuery();
+    				GroupControl gc = new GroupControl();
+    				while (rs.next()) {
+    					gc = new GroupControl();
+    					mylib.parseaGroupControl(gc, rs);
+    					String key = rs.getString("grpID")+":"+rs.getString("numSecExec");
+    					mgc.put(key, gc);
+    				}
+    				rs.close();
+    			} else {
+    				//No pudo ejecutar la query
+    			}
+    			
+    			
+    			/**
+    			 * Recupera todos los proceso asociados a los grupos encontrados
+    			 */
+    			logger.info("Recupera todos los proceso asociados a los grupos encontrados");
+    			for (Map.Entry<String, GroupControl> entry : mgc.entrySet()) {
+    				String[] param = entry.getKey().split(":");
+	    			vSql = dbQuery.getSqlFindProcControl(param[0], param[1]);
+	    			if (dbConn.executeQuery(vSql)) {
+	    				ResultSet rs = dbConn.getQuery();
+	    				ProcControl pc = new ProcControl();
+	    				while (rs.next()) {
+	    					pc = new ProcControl();
+	    					mylib.parseaProcControl(pc, rs);
+	    					String key = rs.getString("procID")+":"+rs.getString("numSecExec");
+	    					mpc.put(key, pc);
+	    				}
+	    				rs.close();
+	    			} else {
+	    				//No pudo ejecutar la query
+	    			}
+    			}
+    			
+    			
+    			/**
+    			 * Actualiza mapProcControl desde BD
+    			 */
+    			logger.info("Actualiza Procesos mapProcControl Huerfanos en BD");
+    			if (mpc.size()>0) {
+    				for (Map.Entry<String, ProcControl> entry : mpc.entrySet()) {
+    					if (!gDatos.isExistProcControl(entry.getKey())) {
+    						ProcControl pc = new ProcControl();
+    						pc = entry.getValue();
+    						pc.setErrCode(99);
+    						pc.setErrMesg("proceso huerfano");
+    						pc.setFecFinished(mylib.getDate());
+    						pc.setFecUpdate(mylib.getDate());
+    						pc.setStatus("FINISHED");
+    						pc.setuStatus("ERROR");
+    						updateDBProcControl(dbConn, entry.getKey(), pc);
+    					}
+    				}
+    			}
+
+    			/**
+    			 * Actualiza mapGroupControl desde BD
+    			 */
+    			logger.info("Actualiza Procesos mapGroupControl Huerfanos en BD");
+    			if (mgc.size()>0) {
+    				for (Map.Entry<String, GroupControl> entry : mgc.entrySet()) {
+    					if (!gDatos.isExistGroupControl(entry.getKey())) {
+    						GroupControl gc = new GroupControl();
+    						gc = entry.getValue();
+    						gc.setErrCode(99);
+    						gc.setErrMesg("proceso huerfano");
+    						gc.setFecFinished(mylib.getDate());
+    						gc.setFecUpdate(mylib.getDate());
+    						gc.setStatus("FINISHED");
+    						gc.setuStatus("ERROR");
+    						updateDBGroupControl(dbConn, entry.getKey(), gc);
+    					}
+    				}
+    			}
+    			
+    			/**
+    			 * Actualiza BD desde mapGroupControl
+    			 */
+    			logger.info("Actualiza BD desde mapGroupControl");
+    			if (gDatos.getMapGroupControl().size()>0) {
+    				for (Map.Entry<String, GroupControl> entry : gDatos.getMapGroupControl().entrySet()) {
+    					String[] param = entry.getKey().split(":");
+    					vSql = dbQuery.getSqlIsExistGroupControl(param[0], param[1]);
+    					if (dbConn.executeQuery(vSql)) {
+    						if (dbConn.isExistRows()) {
+    							updateDBGroupControl(dbConn, entry.getKey(), entry.getValue());
+    						} else {
+    							insertDBGroupControl(dbConn, entry.getKey(), entry.getValue());
+    						}
+    					}
+    				}
+    			}
+    			
+    			/**
+    			 * Actualiza BD desde mapProcControl
+    			 */
+    			logger.info("Actualiza BD desde mapProcControl");
+    			if (gDatos.getMapProcControl().size()>0) {
+    				for (Map.Entry<String, ProcControl> entry : gDatos.getMapProcControl().entrySet()) {
+    					String[] param = entry.getKey().split(":");
+    					vSql = dbQuery.getSqlIsExistProcControl(param[0], param[1]);
+    					if (dbConn.executeQuery(vSql)) {
+    						if (dbConn.isExistRows()) {
+    							updateDBProcControl(dbConn, entry.getKey(), entry.getValue());
+    						} else {
+    							insertDBProcControl(dbConn, entry.getKey(), entry.getValue());
+    						}
+    					}
+    				}
+    			}
+
+    			
+    			//Setea parametro syncMetadata a true
+    			gDatos.setSyncMetadata(true);
+    			
     			dbConn.close();
+    		}
+    		
+    	} catch (Exception e) {
+    		throw new Exception(e.getMessage());
+    	}
+    }
+    
+
+    static private void insertDBProcControl(MetaData dbConn, String key, ProcControl pc) throws Exception {
+    	try {
+    		MetaQuery dbQuery = new MetaQuery(gDatos.getInfo().getDbType());
+    		PreparedStatement psInsert;
+    		
+    		String vSql = dbQuery.getSqlInsertProcControl();
+    		psInsert = dbConn.getConnection().prepareStatement(vSql);
+    		psInsert.setString(1, pc.getGrpID());
+    		psInsert.setString(2, pc.getNumSecExec());
+    		psInsert.setString(3, pc.getProcID());
+    		psInsert.setString(4, pc.getTypeProc());
+    		psInsert.setInt(5, pc.getOrder());
+    		psInsert.setTimestamp(6, mylib.getSqlTimestamp(pc.getFecIns()));
+    		psInsert.setTimestamp(7, mylib.getSqlTimestamp(pc.getFecFinished()));
+    		psInsert.setString(8, pc.getStatus());
+    		psInsert.setString(9, pc.getuStatus());
+    		psInsert.setInt(10, pc.getErrCode());
+    		psInsert.setString(11, pc.getErrMesg());
+    		psInsert.setTimestamp(12, mylib.getSqlTimestamp(pc.getFecUpdate()));
+    		
+    		int numInserted = psInsert.executeUpdate();
+    		
+    		if (numInserted<1) {
+    			logger.error("No pudo insertar ProcControl key: "+key);
+    		} else {
+    			logger.info("Se insertó ProcControl key: "+key);
+    		}
+    		
+    	} catch (Exception e) {
+    		throw new Exception(e.getMessage());
+    	}
+    }
+
+    
+    static private void insertDBGroupControl(MetaData dbConn, String key, GroupControl gc) throws Exception {
+    	try {
+    		MetaQuery dbQuery = new MetaQuery(gDatos.getInfo().getDbType());
+    		PreparedStatement psInsert;
+    		String[] param = key.split(":");
+    		
+    		String vSql = dbQuery.getSqlInsertGroupControl();
+    		psInsert = dbConn.getConnection().prepareStatement(vSql);
+    		psInsert.setString(1, param[0]);
+    		psInsert.setString(2, param[1]);
+    		psInsert.setString(3, gc.getProcID());
+    		psInsert.setInt(4, gc.getOrder());
+    		psInsert.setTimestamp(5, mylib.getSqlTimestamp(gc.getFecIns()));
+    		psInsert.setTimestamp(6, mylib.getSqlTimestamp(gc.getFecFinished()));
+    		psInsert.setString(7, gc.getStatus());
+    		psInsert.setString(8, gc.getuStatus());
+    		psInsert.setInt(9, gc.getErrCode());
+    		psInsert.setString(10, gc.getErrMesg());
+    		psInsert.setTimestamp(11, mylib.getSqlTimestamp(gc.getFecUpdate()));
+    		
+    		int numInserted = psInsert.executeUpdate();
+    		
+    		if (numInserted<1) {
+    			logger.error("No pudo insertar GroupControl key: "+key);
+    		} else {
+    			logger.info("Se insertó GroupControl key: "+key);
+    		}
+    		
+    	} catch (Exception e) {
+    		e.printStackTrace();
+    		logger.error("Error insertDBGroupControl ("+e.getMessage()+")");
+    		throw new Exception(e.getMessage());
+    	}
+    }
+
+    static private void updateDBProcControl(MetaData dbConn, String key, ProcControl pc) throws Exception {
+    	try {
+    		MetaQuery dbQuery = new MetaQuery(gDatos.getInfo().getDbType());
+    		PreparedStatement psUpdate;
+    		
+    		String vSql = dbQuery.getSqlUpdateProcControl(key);
+    		psUpdate = dbConn.getConnection().prepareStatement(vSql);
+    		psUpdate.setTimestamp(1, mylib.getSqlTimestamp(pc.getFecFinished()));
+    		psUpdate.setString(2, pc.getStatus());
+    		psUpdate.setString(3, pc.getuStatus());
+    		psUpdate.setInt(4, pc.getErrCode());
+    		psUpdate.setString(5, pc.getErrMesg());
+    		psUpdate.setTimestamp(6, mylib.getSqlTimestamp(pc.getFecUpdate()));
+    		
+    		int numUpdated = psUpdate.executeUpdate();
+    		
+    		if (numUpdated<1) {
+    			logger.error("No pudo Actualizar ProcControl Key: "+key);
+    		} else {
+    			logger.info("Se actualizo procControl key: "+key);
+    		}
+    		
+    	} catch (Exception e) {
+    		throw new Exception(e.getMessage());
+    	}
+    }
+    
+    static private void updateDBGroupControl(MetaData dbConn, String key, GroupControl gc) throws Exception {
+    	try {
+    		MetaQuery dbQuery = new MetaQuery(gDatos.getInfo().getDbType());
+    		PreparedStatement psUpdate;
+    		
+    		String vSql = dbQuery.getSqlUpdateGroupControl(key);
+    		psUpdate = dbConn.getConnection().prepareStatement(vSql);
+    		psUpdate.setTimestamp(1, mylib.getSqlTimestamp(gc.getFecFinished()));
+    		psUpdate.setString(2, gc.getStatus());
+    		psUpdate.setString(3, gc.getuStatus());
+    		psUpdate.setInt(4, gc.getErrCode());
+    		psUpdate.setString(5, gc.getErrMesg());
+    		psUpdate.setTimestamp(6, mylib.getSqlTimestamp(gc.getFecUpdate()));
+    		
+    		int numUpdated = psUpdate.executeUpdate();
+    		
+    		if (numUpdated<1) {
+    			logger.error("No pudo Actualizar GroupControl Key: "+key);
+    		} else {
+    			logger.info("Se actualizo groupControl key: "+key);
     		}
     		
     	} catch (Exception e) {
@@ -166,13 +423,14 @@ public class ThDBAccess extends Thread{
     					asignaTypeProc(service, rs.getString("srvTypeProc"));
     					asignaCliProc(service, rs.getString("srvTypeProc"));
     					
-    					logger.info("Agregando servicio 1: "+mylib.serializeObjectToJSon(service, false));
+    					//logger.info("Agregando servicio 1: "+mylib.serializeObjectToJSon(service, false));
     					gDatos.updateMapService(service.getSrvId(), service);
     					
     				}
     				rs.close();
     			}
     			dbConn.close();
+    			logger.info("Recuperación exitosa de Servicios desde BD");
     		}
     		
     	} catch (Exception e) {

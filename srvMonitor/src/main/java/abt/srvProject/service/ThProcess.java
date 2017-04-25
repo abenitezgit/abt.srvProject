@@ -74,7 +74,6 @@ public class ThProcess extends Thread{
     static class mainTask extends TimerTask {
     	Map<String, Boolean> mapThread = new HashMap<>();
     	Module module = new Module();
-    	Thread thListener;
 
         //Constructor de la clase
         public mainTask() {
@@ -116,15 +115,27 @@ public class ThProcess extends Thread{
         		}
         		
         		//Actualiza el mapa de control de procesos
-        		myproc.appendNewProcess();
+        		/*
+        		 * Se actualizan los mapas GroupControl y ProcControl
+        		 * los cuales son los objetos que deben sincronizarse con la BD para el control de proceso 
+        		 */
+        		if (gDatos.isSyncMetadata()) {
+        			myproc.appendNewProcess();
+        			
+        			muestralstProcControl();
+            		
+            		muestramapGroupControl();
+            		
+            		/**
+            		 * Crea las TASK correspondientes para ser enviadas a los servidores correspondientes
+            		 */
+            		myproc.appendNewTask();
+            		
+            		//muestraMapTask();
+        		} else {
+        			logger.info("Aun no se ha generado la sincronización con Metadata");
+        		}
         		
-        		muestralstProcControl();
-        		
-        		muestramapGroupControl();
-        		
-        		myproc.appendNewTask();
-        		
-        		muestraMapTask();
         		
         		/**
         		 * Finalizando ciclo del Modulo

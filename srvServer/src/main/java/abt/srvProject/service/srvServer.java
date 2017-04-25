@@ -64,6 +64,7 @@ public class srvServer extends Thread{
     	Module module = new Module();
     	Thread thListener;
     	Thread thSync;
+    	Thread thRunProcess;
 
         //Constructor de la clase
         public mainTask() {
@@ -74,6 +75,7 @@ public class srvServer extends Thread{
         
         @SuppressWarnings("deprecation")
 		public void run() {
+        	String threadName;
         	try {
         		/**
         		 * Inicia ciclo del Modulo
@@ -92,16 +94,17 @@ public class srvServer extends Thread{
         		/**
         		 * Levanta Listener
         		 */
+        		threadName = "thListener";
                 try {
-                    if (!mapThread.get("thListener")) {
-                    	logger.info("Iniciando Listener");
-                        thListener = new srvListener(gDatos);
-                        thListener.setName("thListener");
+                    if (!mapThread.get(threadName)) {
+                    	logger.info("Iniciando "+threadName);
+                        thListener = new ThListener(gDatos);
+                        thListener.setName(threadName);
                         thListener.start();
                     } 
                 } catch (Exception e) {
-                    mapThread.replace("thListener", false);
-                    logger.error("Error al Iniciar Listener: srvListener ("+e.getMessage()+")");
+                    mapThread.replace(threadName, false);
+                    logger.error("Error al Iniciar Listener: "+threadName+" ("+e.getMessage()+")");
                     if (thListener.isAlive()) {
                     	thListener.destroy();
                     }
@@ -111,21 +114,40 @@ public class srvServer extends Thread{
         		/**
         		 * Levanta srvSync
         		 */
+                threadName = "thSync";
                 try {
-                    if (!mapThread.get("thSync")) {
-                    	logger.info("Iniciando srvSync");
-                        thSync = new srvSync(gDatos);
-                        thSync.setName("thSync");
+                    if (!mapThread.get(threadName)) {
+                    	logger.info("Iniciando "+threadName);
+                        thSync = new ThSync(gDatos);
+                        thSync.setName(threadName);
                         thSync.start();
                     } 
                 } catch (Exception e) {
-                    mapThread.replace("thSync", false);
-                    logger.error("Error al Iniciar srvSync ("+e.getMessage()+")");
+                    mapThread.replace(threadName, false);
+                    logger.error("Error al Iniciar "+threadName+" ("+e.getMessage()+")");
                     if (thSync.isAlive()) {
                     	thSync.destroy();
                     }
                 }
 
+        		/**
+        		 * Levanta ThRunProcess
+        		 */
+                threadName = "thRunProcess";
+                try {
+                    if (!mapThread.get(threadName)) {
+                    	logger.info("Iniciando "+threadName);
+                        thRunProcess = new ThRunProcess(gDatos);
+                        thRunProcess.setName(threadName);
+                        thRunProcess.start();
+                    } 
+                } catch (Exception e) {
+                    mapThread.replace(threadName, false);
+                    logger.error("Error al Iniciar "+threadName+" ("+e.getMessage()+")");
+                    if (thRunProcess.isAlive()) {
+                    	thRunProcess.destroy();
+                    }
+                }
                 
                 
         		/**
@@ -144,6 +166,7 @@ public class srvServer extends Thread{
             
         	mapThread.put("thListener", false);
         	mapThread.put("thSync", false);
+        	mapThread.put("thRunProcess", false);
             
             //Thread tr = Thread.currentThread();
             Set<Thread> threadSet = Thread.getAllStackTraces().keySet();
@@ -155,6 +178,9 @@ public class srvServer extends Thread{
                 }
                 if (t.getName().equals("thSync")) {
                 	mapThread.replace("thSync", true);
+                }
+                if (t.getName().equals("thRunProcess")) {
+                	mapThread.replace("thRunProcess", true);
                 }
             }
             

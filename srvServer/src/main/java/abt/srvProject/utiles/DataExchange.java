@@ -4,8 +4,6 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.json.JSONObject;
-
 import abt.srvProject.srvRutinas.Rutinas;
 
 public class DataExchange {

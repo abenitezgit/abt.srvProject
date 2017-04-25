@@ -181,5 +181,24 @@ public class mysqlDB {
     		throw new Exception(e.getMessage());
     	}
     }
+    
+    public boolean isExistRows() throws Exception {
+    	try {
+    		boolean result;
+    		if (stm.getResultSet()!=null) {
+    			if (stm.getResultSet().next()) {
+    				result = true;
+    			} else {
+    				result = false;
+    			}
+    		} else {
+    			result = false;
+    		}
+    		
+    		return result;
+    	} catch (Exception e) {
+    		throw new Exception(e.getMessage());
+    	}
+    }
 
 }

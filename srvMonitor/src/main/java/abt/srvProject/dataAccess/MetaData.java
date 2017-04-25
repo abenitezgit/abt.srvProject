@@ -103,6 +103,19 @@ public class MetaData {
     	}
     }
     
+    public boolean isExistRows() throws Exception {
+    	try {
+	        switch (gDatos.getInfo().getDbType()) {
+            case "mySQL":
+                return myConn.isExistRows();
+            default:
+                return false;
+	        }
+    	} catch (Exception e) {
+    		throw new Exception(e.getMessage());
+    	}
+    }
+    
     
     public void close() throws Exception {
     	try {

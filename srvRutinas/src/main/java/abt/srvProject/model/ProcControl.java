@@ -11,7 +11,7 @@ public class ProcControl {
 	String typeProc;
 	int order;
 	Date fecIns;
-	Date fecStart;
+	Date fecUpdate;
 	Date fecFinished;
 	String status;
 	String uStatus;
@@ -24,6 +24,12 @@ public class ProcControl {
 	
 	public String getGrpID() {
 		return grpID;
+	}
+	public Date getFecUpdate() {
+		return fecUpdate;
+	}
+	public void setFecUpdate(Date fecUpdate) {
+		this.fecUpdate = fecUpdate;
 	}
 	public String getTypeProc() {
 		return typeProc;
@@ -69,12 +75,6 @@ public class ProcControl {
 	}
 	public void setFecIns(Date fecIns) {
 		this.fecIns = fecIns;
-	}
-	public Date getFecStart() {
-		return fecStart;
-	}
-	public void setFecStart(Date fecStart) {
-		this.fecStart = fecStart;
 	}
 	public Date getFecFinished() {
 		return fecFinished;

@@ -17,8 +17,8 @@ import abt.srvProject.srvRutinas.Rutinas;
 import abt.srvProject.utiles.GlobalArea;
 import abt.srvProject.utiles.Procedures;
 
-public class srvListener extends Thread{
-	static final String MODULE="srvListener";
+public class ThListener extends Thread{
+	static final String MODULE="ThListener";
 	static Logger logger = Logger.getLogger(MODULE);
 	static Rutinas mylib = new Rutinas();
 	static GlobalArea gDatos;
@@ -28,7 +28,7 @@ public class srvListener extends Thread{
 	//Control de Ejecucion del servicio
 	boolean init;
 	
-	public srvListener(GlobalArea m) {
+	public ThListener(GlobalArea m) {
 		try {
 			gDatos = m;
 			String pathFileLog4j=gDatos.getInfo().getPathProperties()+"/"+gDatos.getInfo().getLogProperties();

@@ -12,7 +12,7 @@ import java.util.Map;
 import org.apache.log4j.Logger;
 import org.json.JSONObject;
 
-import abt.srvProject.model.Service;
+import abt.srvProject.model.Task;
 import abt.srvProject.srvRutinas.Rutinas;
 
 public class Procedures {
@@ -30,8 +30,14 @@ public class Procedures {
 		JSONObject jData = new JSONObject();
 		
 		try {
+			//Prepara el MapTask de Respuesta
+			Map<String, Task> mTSend = new HashMap<>(gDatos.getMapTask());
+			for (Map.Entry<String, Task> loopTask : mTSend.entrySet()) {
+				loopTask.getValue().setParam(null);
+			}
+			
 			String service = mylib.serializeObjectToJSon(gDatos.getService(), false);
-			String task = mylib.serializeObjectToJSon(gDatos.getMapTask(), false);
+			String task = mylib.serializeObjectToJSon(mTSend, false);
 			
 			jData.put("service", service);
 			jData.put("task", task);

@@ -1,15 +1,13 @@
 package abt.srvProject.utiles;
 
 import java.util.HashMap;
-import java.util.List;
+import java.util.LinkedList;
 import java.util.Map;
 
 import abt.srvProject.model.Module;
 import abt.srvProject.model.Service;
 import abt.srvProject.model.Task;
 import abt.srvProject.srvRutinas.Rutinas;
-import abt.srvProject.model.AssignedCliProc;
-import abt.srvProject.model.AssignedTypeProc;
 import abt.srvProject.model.Info;
 
 public class GlobalArea {
@@ -20,10 +18,21 @@ public class GlobalArea {
 	Map<String, Module> mapModule = new HashMap<>();
 	Map<String, Task> mapTask = new HashMap<>();
 	
+	//Cola de Task
+	LinkedList<Task> lkdTask = new LinkedList<>(); 
+	
 	//Getter and Setter
 	
 	public Service getService() {
 		return service;
+	}
+
+	public LinkedList<Task> getLkdTask() {
+		return lkdTask;
+	}
+
+	public void setLkdTask(LinkedList<Task> lkdTask) {
+		this.lkdTask = lkdTask;
 	}
 
 	public Map<String, Task> getMapTask() {
@@ -55,7 +64,48 @@ public class GlobalArea {
 	}
 	
 	//Procedimientos internos
-	@SuppressWarnings("unchecked")
+	
+	public synchronized Task getItemTaskPool() throws Exception {
+		try {
+			Task tsk = new Task();
+			tsk = getLkdTask().remove();
+			return tsk;
+		} catch (Exception e) {
+			mylib.console(1,"Error getItemTaskPool ("+e.getMessage()+")");
+			throw new Exception(e.getMessage());
+		}
+	}
+	
+	public synchronized void addNewTaskMap(Task task) throws Exception {
+		try {
+			getMapTask().put(task.getProcID()+":"+task.getNumSecExec(), task);
+		} catch (Exception e) {
+			throw new Exception(e.getMessage());
+		}
+	}
+	
+	public synchronized void updateLkdTask(Map<String, Task> mapL) throws Exception {
+		/**
+		 * Actualiza la cola de Tareas locales desde monitor
+		 * agregar nuevos task
+		 * cancelar task si aun no se han ejecutado
+		 */
+		try {
+			//Para cada Task recibida
+			Task tsk;
+			for (Map.Entry<String, Task> mapT : mapL.entrySet()) {
+				String mapTString = mylib.serializeObjectToJSon(mapT.getValue(), false);
+				tsk = new Task();
+				tsk = (Task) mylib.serializeJSonStringToObject(mapTString, Task.class);
+				//tsk = mapT.getValue();
+				getLkdTask().add(tsk);
+			}
+			
+		} catch (Exception e) {
+			throw new Exception(e.getMessage());
+		}
+	}
+	
 	public synchronized void updateService(Map<String,Object> newSrv) throws Exception {
 		try {
 			/**
@@ -83,11 +133,6 @@ public class GlobalArea {
 				case "activePrimaryMonitor":
 					getService().setActivePrimaryMonitor((boolean) entry.getValue());
 					break;
-				case "lstTypeProc":
-					getService().setLstTypeProc((List<AssignedTypeProc>) entry.getValue());
-					break;
-				case "lstCliProc":
-					getService().setLstCliProc((List<AssignedCliProc>) entry.getValue());
 				}
 			}
 		} catch (Exception e) {

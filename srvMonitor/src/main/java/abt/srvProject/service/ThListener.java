@@ -119,6 +119,12 @@ public class ThListener extends Thread{
                             	case "getGroupControl":
                             		outputData = dproc.sendGroupControl();
                             		break;
+                            	case "getMapTask":
+                            		outputData = dproc.sendMapTask();
+                            		break;
+                            	case "getMapInterval":
+                            		outputData = dproc.sendMapInterval();
+                            		break;
                             	case "syncService":
                             		outputData = dproc.syncService(jData);
                             		break;

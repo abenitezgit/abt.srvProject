@@ -8,18 +8,38 @@ public class Task {
 	String typeProc;
 	String srvID;
 	Date fecIns;
-	Date fecStart;
+	Date fecUpdate;
 	Date fecFinished;
 	String status;
 	String uStatus;
 	int errCode;
 	String errMesg;
 	Object param;
+	Object txResult;
+	Object txSubTask;
 	
 	//Getter and Setter
 	
 	public String getProcID() {
 		return procID;
+	}
+	public Object getTxSubTask() {
+		return txSubTask;
+	}
+	public void setTxSubTask(Object txSubTask) {
+		this.txSubTask = txSubTask;
+	}
+	public Object getTxResult() {
+		return txResult;
+	}
+	public void setTxResult(Object txResult) {
+		this.txResult = txResult;
+	}
+	public Date getFecUpdate() {
+		return fecUpdate;
+	}
+	public void setFecUpdate(Date fecUpdate) {
+		this.fecUpdate = fecUpdate;
 	}
 	public void setProcID(String procID) {
 		this.procID = procID;
@@ -47,12 +67,6 @@ public class Task {
 	}
 	public void setFecIns(Date fecIns) {
 		this.fecIns = fecIns;
-	}
-	public Date getFecStart() {
-		return fecStart;
-	}
-	public void setFecStart(Date fecStart) {
-		this.fecStart = fecStart;
 	}
 	public Date getFecFinished() {
 		return fecFinished;

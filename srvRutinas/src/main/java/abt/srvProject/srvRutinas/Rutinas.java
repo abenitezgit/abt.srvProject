@@ -12,9 +12,13 @@ import org.codehaus.jackson.map.SerializationConfig;
 import org.json.JSONObject;
 
 import abt.srvProject.model.Dependence;
+import abt.srvProject.model.Etl;
+import abt.srvProject.model.EtlMatch;
+import abt.srvProject.model.GroupControl;
 import abt.srvProject.model.Grupo;
 import abt.srvProject.model.Mov;
 import abt.srvProject.model.MovMatch;
+import abt.srvProject.model.ProcControl;
 import abt.srvProject.model.Proceso;
 
 
@@ -75,6 +79,66 @@ public class Rutinas {
 			throw new Exception(e.getMessage());
 		}
 		
+	}
+	
+	public void parseaEtlMatch(EtlMatch etlMatch, ResultSet rs) throws Exception {
+		try {
+			etlMatch.setEtlDestField(rs.getString("ETLDESTFIELD"));
+			etlMatch.setEtlDestLength(rs.getInt("ETLDESTLENGTH"));
+			etlMatch.setEtlDestType(rs.getString("ETLDESTTYPE"));
+			etlMatch.setEtlEnable(rs.getInt("ETLENABLE"));
+			etlMatch.setEtlOrder(rs.getInt("ETLORDER"));
+			etlMatch.setEtlSourceField(rs.getString("ETLSOURCEFIELD"));
+			etlMatch.setEtlSourceLength(rs.getInt("ETLSOURCELENGTH"));
+			etlMatch.setEtlSourceType(rs.getString("ETLSOURCETYPE"));
+		} catch (Exception e) {
+			throw new Exception(e.getMessage());
+		}
+	}
+	
+	public void parseaEtl(Etl etl, ResultSet rs) throws Exception {
+		try {
+			etl.setCliDesc(rs.getString("cliDesc"));
+			etl.setdDbConf(rs.getString("dDbConf"));
+			etl.setdDbDesc(rs.getString("dDbDesc"));
+			etl.setdDbInstance(rs.getString("dDbInstance"));
+			etl.setdDbJDBC(rs.getString("dDbJDBC"));
+			etl.setdDbName(rs.getString("dDbName"));
+			etl.setdDbPort(rs.getString("dDbPort"));
+			etl.setdDbType(rs.getString("dDbType"));
+			etl.setdIp(rs.getString("dIp"));
+			etl.setdTbName(rs.getString("dTbName"));
+			etl.setdUserName(rs.getString("dUserName"));
+			etl.setdUserPass(rs.getString("dUserPass"));
+			etl.setdUserType(rs.getString("dUserType"));
+			etl.setEtlDesc(rs.getString("etlDesc"));
+			etl.setEtlEnable(rs.getInt("etlEnable"));
+			etl.setEtlID(rs.getString("etlID"));
+			etl.setFieldKey(rs.getString("fieldKey"));
+			etl.setFieldType(rs.getString("fieldType"));
+			etl.setNumSecExec(rs.getString("lastNumSecExec"));
+			etl.setQueryBody(rs.getString("queryBody"));
+			etl.setsDbConf(rs.getString("sDbConf"));
+			etl.setsDbDesc(rs.getString("sDbDesc"));
+			etl.setsDbInstance(rs.getString("sDbInstance"));
+			etl.setsDbJDBC(rs.getString("sDbJDBC"));
+			etl.setsDbName(rs.getString("sDbName"));
+			etl.setsDbPort(rs.getString("sDbPort"));
+			etl.setsDbType(rs.getString("sDbType"));
+			etl.setsIp(rs.getString("sIp"));
+			etl.setsTbName(rs.getString("sTbName"));
+			etl.setsUserName(rs.getString("sUserName"));
+			etl.setsUserPass(rs.getString("sUserPass"));
+			etl.setsUserType(rs.getString("sUserType"));
+			etl.setTimeGap(rs.getInt("timeGap"));
+			etl.setTimeGen(rs.getInt("timeGen"));
+			etl.setTimePeriod(rs.getInt("timePeriod"));
+			etl.setUnitMeasure(rs.getString("unitMeasure"));
+			etl.setWhereActive(rs.getInt("whereActive"));
+			
+		} catch (Exception e) {
+			throw new Exception(e.getMessage());
+		}
 	}
 	
 	public void parseaMov(Mov mov, ResultSet rs) throws Exception {
@@ -139,6 +203,43 @@ public class Rutinas {
 		
 	}
 	
+	public void parseaProcControl(ProcControl pc, ResultSet rs) throws Exception {
+		try {
+			pc.setDependences(null);
+			pc.setErrCode(rs.getInt("errCode"));
+			pc.setErrMesg(rs.getString("errMesg"));
+			pc.setFecIns(rs.getDate("fecIns"));
+			pc.setFecUpdate(rs.getDate("fecUpdate"));
+			pc.setGrpID(rs.getString("grpID"));
+			pc.setNumSecExec(rs.getString("numSecExec"));
+			pc.setOrder(rs.getInt("norder"));
+			pc.setParam(null);
+			pc.setProcID(rs.getString("procID"));
+			pc.setStatus(rs.getString("status"));
+			pc.setTypeProc(rs.getString("typeProc"));
+			pc.setuStatus(rs.getString("uStatus"));
+			
+		} catch (Exception e) {
+			throw new Exception(e.getMessage());
+		}
+	}
+	
+	public void parseaGroupControl(GroupControl gc, ResultSet rs) throws Exception {
+		try {
+			gc.setErrCode(rs.getInt("errCode"));
+			gc.setErrMesg(rs.getString("errMesg"));
+			gc.setFecIns(rs.getDate("fecIns"));
+			gc.setFecUpdate(rs.getDate("fecUpdate"));
+			gc.setOrder(rs.getInt("norder"));
+			gc.setProcID(rs.getString("procID"));
+			gc.setStatus(rs.getString("status"));
+			gc.setuStatus(rs.getString("uStatus"));
+			
+		} catch (Exception e) {
+			throw new Exception(e.getMessage());
+		}
+	}
+	
 	public void parseaGrupo(Grupo grupo, ResultSet rs) throws Exception {
 		try {
 			grupo.setCliDesc(rs.getString("CLIDESC"));
@@ -195,6 +296,22 @@ public class Rutinas {
 					}
 	}
 	
+	public java.sql.Timestamp getSqlTimestamp(Date fecha)  {
+		try {
+//			java.util.Calendar cal = Calendar.getInstance();
+//			cal.setTime(fecha);
+			java.sql.Timestamp sqlDate = new java.sql.Timestamp(fecha.getTime()); // your sql date
+
+			return sqlDate;
+//	        SimpleDateFormat formatter;
+//	        formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+//	        return (java.sql.Date) formatter.parse(formatter.format(fecha));
+		} catch (Exception e) {
+			return null;
+		}
+	}
+	
+	
 	public Date getDate() throws Exception {
 		try {
 	        Date today;
@@ -202,6 +319,26 @@ public class Rutinas {
 	        formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 	        today = new Date();
 	        return formatter.parse(formatter.format(today));
+		} catch (Exception e) {
+			throw new Exception(e.getMessage());
+		}
+	}
+	
+	public Date getDate(String fecha) throws Exception {
+		try {
+			SimpleDateFormat formatter;
+			formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+			return formatter.parse(fecha);
+		} catch (Exception e) {
+			throw new Exception(e.getMessage());
+		}
+	}
+	
+	public Date getDate(String fecha, String xformat) throws Exception {
+		try {
+			SimpleDateFormat formatter;
+			formatter = new SimpleDateFormat(xformat);
+			return formatter.parse(fecha);
 		} catch (Exception e) {
 			throw new Exception(e.getMessage());
 		}
