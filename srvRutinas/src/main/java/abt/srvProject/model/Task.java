@@ -3,6 +3,7 @@ package abt.srvProject.model;
 import java.util.Date;
 
 public class Task {
+	String key;
 	String procID;
 	String numSecExec;
 	String typeProc;
@@ -22,6 +23,12 @@ public class Task {
 	
 	public String getProcID() {
 		return procID;
+	}
+	public String getKey() {
+		return key;
+	}
+	public void setKey(String key) {
+		this.key = key;
 	}
 	public Object getTxSubTask() {
 		return txSubTask;

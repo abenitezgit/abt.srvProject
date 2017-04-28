@@ -9,6 +9,7 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 
+import abt.srvProject.model.Interval;
 import abt.srvProject.model.Module;
 import abt.srvProject.model.Task;
 import abt.srvProject.srvRutinas.Rutinas;
@@ -149,16 +150,27 @@ public class ThRunProcess extends Thread{
     		Task tsk = new Task();
     		tsk = gDatos.getItemTaskPool();
     		
-    		String keyTask = tsk.getProcID()+":"+tsk.getNumSecExec();
+    		String keyTask = tsk.getKey();
     		
     		logger.info("Se ha extraido el TaskPool: "+keyTask);
     		
     		if (!gDatos.getMapTask().containsKey(keyTask)) {
     			tsk.setStatus("READY");
-    			tsk.setFecUpdate(mylib.getDate());
     			tsk.setFecIns(mylib.getDate());
+    			
+    			if (tsk.getTypeProc().equals("ETL")) {
+    				Interval interval = new Interval();
+    				String strinInterval = mylib.serializeObjectToJSon(tsk.getTxSubTask(), false);
+    				interval = (Interval) mylib.serializeJSonStringToObject(strinInterval, Interval.class);
+    				interval.setFecIns(tsk.getFecIns());
+    				interval.setStatus(tsk.getStatus());
+    				tsk.setTxSubTask(interval);
+    			}
 
     			gDatos.addNewTaskMap(tsk);
+    			
+    			
+    			
     			logger.info("Se ingreso nuevo Task: "+keyTask);
     		} else {
     			//Task ya fue ingresado al map de ejecuion de Task

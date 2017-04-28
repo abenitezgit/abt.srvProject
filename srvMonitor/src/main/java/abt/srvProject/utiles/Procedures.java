@@ -36,23 +36,27 @@ public class Procedures {
 		gDatos = m;
 	}
 	
-
-
-	
-	public void updateReceiveTask(Map<String, Task> mTask) throws Exception {
+	public void updateReceiveTask(Map<String, Task> mapTask) throws Exception {
 		try {
-			if (mTask.size()>0) {
-				for (Map.Entry<String, Task> loopTask : mTask.entrySet()) {
-					Task pTask = new Task();
-					String pTaskString = mylib.serializeObjectToJSon(loopTask.getValue(), false);
-					pTask = (Task) mylib.serializeJSonStringToObject(pTaskString, Task.class);
-					if (gDatos.isExistTask(loopTask.getKey())) {
-						gDatos.updateStatusTask(loopTask.getKey(), pTask);
-						gDatos.updateStatusProcControl(loopTask.getKey(), pTask);
+			if (mapTask.size()>0) {
+				//Para cada Task recibido se procede a actualizar los objetos locales
+				//mapProcControl, mapGroupControl, mapTask, mapInterval
+				//Dentro de un Task se actualiza el Interval correspondiente
+				for (Map.Entry<String, Task> entry : mapTask.entrySet()) {
+					mylib.console("Actualizando Task: "+entry.getKey());
+					
+					Task task = new Task();
+					String taskString = mylib.serializeObjectToJSon(entry.getValue(), false);
+					task = (Task) mylib.serializeJSonStringToObject(taskString, Task.class);
+					
+					if (gDatos.isExistTask(entry.getKey())) {
+						gDatos.updateStatusTask(entry.getKey(), task);
+						String keyProc = task.getProcID()+":"+task.getNumSecExec();
+						gDatos.updateStatusProcControl(keyProc, task);
 					} else {
 						//Tarea no fue encontrada en master
 						//se sincronizará
-						gDatos.addTask(pTask);
+						gDatos.addTask(task);
 					}
 				}
 			} else {
@@ -97,13 +101,13 @@ public class Procedures {
 					String status;
 					
 					try {
-						uStatus = gDatos.getMapProcControl().get(procID+":"+pc.getNumSecExec()).getuStatus();
+						status = gDatos.getMapProcControl().get(procID+":"+pc.getNumSecExec()).getStatus();
 						
 						try {
-							status = gDatos.getMapProcControl().get(procID+":"+pc.getNumSecExec()).getStatus();
+							uStatus = gDatos.getMapProcControl().get(procID+":"+pc.getNumSecExec()).getuStatus();
 							
-							if (uStatus.equals("FINISHED")) {
-								if (status.equals("ERROR")) {
+							if (status.equals("FINISHED")) {
+								if (uStatus.equals("ERROR")) {
 									if (critical.equals("1")) {
 										isFin = false;
 									} else {
@@ -145,6 +149,7 @@ public class Procedures {
 												.stream()
 												.filter(p -> p.getValue().getStatus().equals("UNASSIGNED") || p.getValue().getTypeProc().equals("ETL"))
 												.collect(Collectors.toMap(map -> map.getKey() , map -> map.getValue()));
+			mylib.console("Total procesos para generar Task: "+map_pc.size());
 			if (map_pc.size()>0) {
 				for (Map.Entry<String, ProcControl> mapUA : map_pc.entrySet()) {
 					//Valida si el proceso tiene dependencias finalizadas para generar un TASK
@@ -163,8 +168,9 @@ public class Procedures {
 								if (interval != null) {
 									isGenTask = true; 
 								} else {
+									//pendiente crear condicion si es nula la asignacion de intervalos
+									//para finalizar el proceso
 									isGenTask = false;
-									gDatos.updateStatusProcControl(mapUA.getKey(),"FINISHED");
 								}
 							}
 							break;
@@ -199,19 +205,18 @@ public class Procedures {
 		}
 	}
 	
-	public void appendNewProcess() throws Exception {
+	public void appendProcessControl() throws Exception {
 		try {
 			//Busca todos los grupos nuevos activados en Cola de Grupos
 			if (gDatos.getLkdGrupo().size()>0) {
 				Grupo grupo;
 				int numItems = gDatos.getLkdGrupo().size();
 				while (numItems > 0) {
-					
 					grupo = new Grupo();
 					grupo = gDatos.getLkdGrupo().remove();
 					
 					//Valida si grupo ya está inscrito en groupControl
-					String key=grupo.getGrpID()+":"+grupo.getNumSecExec();
+					String key = grupo.getGrpID()+":"+grupo.getNumSecExec();
 					if (!gDatos.isExistGrupoIns(key)) {
 						gDatos.inscribeGroup(key);
 						gDatos.inscribeProcess(grupo);

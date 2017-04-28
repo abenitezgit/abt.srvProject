@@ -25,6 +25,18 @@ public class Procedures {
 		gDatos = m;
 	}
 	
+	public void parseaTaskFromJson(Task task, JSONObject jTask) throws Exception {
+		try {
+			task.setErrCode(jTask.getInt("errCode"));
+			task.setErrMesg(jTask.getString("errMesg"));
+			//task.setFecFinished(jTask.getString("fecFinished"));
+			
+			
+		} catch (Exception e) {
+			throw new Exception(e.getMessage());
+		}
+	}
+	
 	public String genMsgRequestSync() {
 		JSONObject jHeader = new JSONObject();
 		JSONObject jData = new JSONObject();

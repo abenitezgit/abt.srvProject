@@ -91,51 +91,64 @@ public class ThProcess extends Thread{
         		logger.info("Iniciando ciclo "+MODULE);
         		module.setLastFecIni(mylib.getDateNow());
         		gDatos.getMapModule().put(MODULE, module);
+        		
+        		//Setea los Objetos a utilizar
+        		List<Agenda> lstAgenda = new ArrayList<>();	//Contendrá la lista de Agendas Activas
+        		List<Grupo> lstGrupo = new ArrayList<>(); //Lista de grupos potenciales a activar
         	
         		
-        		//Recupera Lista de Agendas Activas
-        		ciclo = 1;
-        		List<Agenda> lstAgenda = new ArrayList<>();
-        		lstAgenda = myproc.getActiveAgendas();
-        		
-        		//Recupera Grupos Asociados a las Agendas
-        		if (lstAgenda.size()>0) {
-	        		ciclo = 2;
-	        		List<Grupo> lstGrupo = new ArrayList<>();
-	        		lstGrupo = myproc.getGrupos(lstAgenda);
-	        		
-	        		//Agrega los grupos encontrados a la cola de grupos activos encontrados
-	        		myproc.appendColaGruposActivos(lstGrupo);
-	        		
-	        		mylib.console("Total Agendas encontradas: "+lstAgenda.size());
-	        		mylib.console("Total de grupos encontrados: "+lstGrupo.size());
-	        		
-        		} else {
-        			logger.info("No hay agendas activas en estos momentos");
-        		}
-        		
-        		//Actualiza el mapa de control de procesos
-        		/*
-        		 * Se actualizan los mapas GroupControl y ProcControl
-        		 * los cuales son los objetos que deben sincronizarse con la BD para el control de proceso 
-        		 */
+        		//Pregunta si esta permitido realizar el proceso
         		if (gDatos.isSyncMetadata()) {
-        			myproc.appendNewProcess();
-        			
-        			muestralstProcControl();
-            		
-            		muestramapGroupControl();
-            		
-            		/**
-            		 * Crea las TASK correspondientes para ser enviadas a los servidores correspondientes
-            		 */
-            		myproc.appendNewTask();
-            		
-            		//muestraMapTask();
+        		
+	        		//Recupera Lista de Agendas Activas
+	        		lstAgenda = myproc.getActiveAgendas();
+	        		
+	        		//Recupera Grupos Asociados a las Agendas
+	        		if (lstAgenda.size()>0) {
+		        		
+	        			//Busca todos los grupos que potencialmente podrian ejecutarse de acuerdo a las
+	        			//agendas encontradas en lstAgenda
+		        		lstGrupo = myproc.getGrupos(lstAgenda);
+		        		
+		        		//Agrega los grupos encontrados a la cola de grupos activos
+		        		myproc.appendColaGruposActivos(lstGrupo);
+		        		
+		        		mylib.console("Total Agendas encontradas: "+lstAgenda.size());
+		        		mylib.console("Total de grupos encontrados: "+lstGrupo.size());
+		        		
+	        		} else {
+	        			logger.info("No hay agendas activas en estos momentos");
+	        		}
+	        		
+	        		//Actualiza el mapa de control de procesos
+	        		/*
+	        		 * Se actualizan los mapas mapGroupControl y mapProcControl
+	        		 * los cuales son los objetos que deben sincronizarse con la BD para el control de proceso 
+	        		 */
+	    			myproc.appendProcessControl();
+	        			
+	    			//muestralstProcControl();
+	        		
+	        		//muestramapGroupControl();
+	            		
+	        		/**
+	        		 * Crea las TASK correspondientes para ser enviadas a los servidores correspondientes
+	        		 */
+	        		myproc.appendNewTask();
+	        		
+	        		
+	        		/**
+	        		 * Analiza Task huerfanos recibidos de servicios
+	        		 * Task que quedaron vigentes en servicios pero que no estan en master
+	        		 * Se deben recrear los procesos procControl, groupControl y mapInterval (ETL's)
+	        		 */
+
+	        		
+	        		
         		} else {
         			logger.info("Aun no se ha generado la sincronización con Metadata");
         		}
-        		
+
         		
         		/**
         		 * Finalizando ciclo del Modulo

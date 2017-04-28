@@ -124,13 +124,37 @@ public class GlobalArea {
 	
 	public void updateStatusTask(String key, Task task) throws Exception {
 		try {
-			getMapTask().get(key).setErrCode(task.getErrCode());
-			getMapTask().get(key).setErrMesg(task.getErrMesg());
-			getMapTask().get(key).setFecFinished(task.getFecFinished());
-			getMapTask().get(key).setFecIns(task.getFecIns());
-			getMapTask().get(key).setFecUpdate(task.getFecUpdate());
-			getMapTask().get(key).setStatus(task.getStatus());
-			getMapTask().get(key).setuStatus(task.getuStatus());
+			if (getMapTask().containsKey(key)) {
+				if (!getMapTask().get(key).getStatus().equals(task.getStatus())) {
+					getMapTask().get(key).setErrCode(task.getErrCode());
+					getMapTask().get(key).setErrMesg(task.getErrMesg());
+					getMapTask().get(key).setFecFinished(task.getFecFinished());
+					getMapTask().get(key).setFecIns(task.getFecIns());
+					getMapTask().get(key).setFecUpdate(task.getFecUpdate());
+					getMapTask().get(key).setStatus(task.getStatus());
+					getMapTask().get(key).setuStatus(task.getuStatus());
+					
+					if (task.getTypeProc().equals("ETL")) {
+						Interval interval = new Interval();
+						String stringInterval = mylib.serializeObjectToJSon(task.getTxSubTask(), true);
+						interval = (Interval) mylib.serializeJSonStringToObject(stringInterval, Interval.class);
+						interval.setFecFinished(task.getFecFinished());
+						interval.setFecUpdate(task.getFecUpdate());
+						interval.setStatus(task.getStatus());
+						
+						getMapTask().get(key).setTxSubTask(interval);
+						
+						updateStatusMapInterval(interval, task);
+					}
+					
+					mylib.console("Se actualizó Task: "+key);
+				} else {
+					mylib.console("No hay cambios que realizar para el Task: "+key);
+				}
+			} else {
+				//Tratando de actualizar un Task que ya no existe
+				//esto es un error
+			}
 			
 		} catch (Exception e) {
 			throw new Exception(e.getMessage());
@@ -214,18 +238,25 @@ public class GlobalArea {
 		
 	}
 
-	public synchronized void updateStatusProcControl(String key, Task task) throws Exception {
+	public synchronized void updateStatusProcControl(String keyProc, Task task) throws Exception {
 		try {
-			if (getMapProcControl().containsKey(key)) {
-				getMapProcControl().get(key).setErrCode(task.getErrCode());
-				getMapProcControl().get(key).setErrMesg(task.getErrMesg());
-				getMapProcControl().get(key).setFecFinished(task.getFecFinished());
-				getMapProcControl().get(key).setFecIns(task.getFecIns());
-				getMapProcControl().get(key).setFecUpdate(task.getFecUpdate());
-				getMapProcControl().get(key).setStatus(task.getStatus());
-				getMapProcControl().get(key).setuStatus(task.getuStatus());
+			
+			if (getMapProcControl().containsKey(keyProc)) {
+				if (!getMapProcControl().get(keyProc).getStatus().equals(task.getStatus())) {
+					getMapProcControl().get(keyProc).setErrCode(task.getErrCode());
+					getMapProcControl().get(keyProc).setErrMesg(task.getErrMesg());
+					getMapProcControl().get(keyProc).setFecFinished(task.getFecFinished());
+					getMapProcControl().get(keyProc).setFecIns(task.getFecIns());
+					getMapProcControl().get(keyProc).setFecUpdate(task.getFecUpdate());
+					getMapProcControl().get(keyProc).setStatus(task.getStatus());
+					getMapProcControl().get(keyProc).setuStatus(task.getuStatus());
+					
+					String keyGroup = getMapProcControl().get(keyProc).getGrpID()+":"+task.getNumSecExec();
+					updateStatusGroupControl(keyGroup, getMapProcControl().get(keyProc));
+					
+				}
 				
-				updateStatusGroupControl(getMapProcControl().get(key).getGrpID()+":"+task.getNumSecExec(), getMapProcControl().get(key));
+				
 			}
 		} catch (Exception e) {
 			throw new Exception(e.getMessage());
@@ -260,7 +291,7 @@ public class GlobalArea {
 	
 	public synchronized void addTask(Task task) throws Exception {
 		try {
-			getMapTask().put(task.getProcID()+":"+task.getNumSecExec(), task);
+			getMapTask().put(task.getKey(), task);
 		} catch (Exception e) {
 			throw new Exception(e.getMessage());
 		}
@@ -301,13 +332,14 @@ public class GlobalArea {
 		}
 	}
 	
-	public synchronized void updateStatusMapInterval(Interval interval, String status) throws Exception {
+	public synchronized void updateStatusMapInterval(Interval interval, Task task) throws Exception {
 		try {
 			String key = interval.getProcID()+":"+interval.getIntervalID();
 			if (getMapInterval().containsKey(key)) {
-				if (!getMapInterval().get(key).getStatus().equals(status)) {
-					interval.setFecUpdate(mylib.getDate());
-					interval.setStatus(status);
+				if (!getMapInterval().get(key).getStatus().equals(task.getStatus())) {
+					interval.setFecUpdate(task.getFecUpdate());
+					interval.setFecFinished(task.getFecFinished());
+					interval.setStatus(task.getStatus());
 					getMapInterval().put(key, interval);
 				} else {
 					//No encontro key en el mapInterval
@@ -332,12 +364,22 @@ public class GlobalArea {
 			task.setTypeProc(pc.getTypeProc());
 			task.setTxSubTask(subTask);
 
-			String keyTask = pc.getProcID()+":"+pc.getNumSecExec();
+
+			String keyTask;
+			if (pc.getTypeProc().equals("ETL")) {
+				Interval interval = new Interval();
+				interval = (Interval) subTask;
+				updateStatusMapInterval(interval,task);
+
+				keyTask = pc.getProcID()+":"+pc.getNumSecExec()+":"+interval.getIntervalID();
+				
+			} else {
+				keyTask = pc.getProcID()+":"+pc.getNumSecExec();
+			}
+			
+			task.setKey(keyTask);
 			mapTask.put(keyTask, task);
 			
-			Interval interval = new Interval();
-			interval = (Interval) subTask;
-			updateStatusMapInterval(interval,"PENDING");
 			
 		} catch (Exception e) {
 			e.printStackTrace();

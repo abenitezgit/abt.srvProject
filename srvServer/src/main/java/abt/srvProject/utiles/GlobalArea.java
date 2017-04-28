@@ -78,7 +78,7 @@ public class GlobalArea {
 	
 	public synchronized void addNewTaskMap(Task task) throws Exception {
 		try {
-			getMapTask().put(task.getProcID()+":"+task.getNumSecExec(), task);
+			getMapTask().put(task.getKey(), task);
 		} catch (Exception e) {
 			throw new Exception(e.getMessage());
 		}
@@ -93,8 +93,8 @@ public class GlobalArea {
 		try {
 			//Para cada Task recibida
 			Task tsk;
-			for (Map.Entry<String, Task> mapT : mapL.entrySet()) {
-				String mapTString = mylib.serializeObjectToJSon(mapT.getValue(), false);
+			for (Map.Entry<String, Task> entry : mapL.entrySet()) {
+				String mapTString = mylib.serializeObjectToJSon(entry.getValue(), false);
 				tsk = new Task();
 				tsk = (Task) mylib.serializeJSonStringToObject(mapTString, Task.class);
 				//tsk = mapT.getValue();
