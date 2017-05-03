@@ -194,6 +194,7 @@ public class Procedures {
 						}
 					} else {
 						//Dependencias no han finalizado
+						mylib.console("Dependencias del proceso: "+mapUA.getKey()+" no han terminado");
 					}
 				}
 			} else {
@@ -275,7 +276,11 @@ public class Procedures {
 		        				//Recupera dependencias de procesos del grupo
 		        				grupo.setLstDepend(getListaDependences(grupo.getGrpID()));
 		        				
-		        				lstGrupo.add(grupo);
+		        				if (grupo.getLstProcess().size()>0) {
+		        					lstGrupo.add(grupo);
+		        				} else {
+		        					mylib.console(1,"No hay procesos asignados al grupo: "+grupo.getGrpID());
+		        				}
 		        			}
 		        			rs.close();
 		        		} else {

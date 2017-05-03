@@ -54,6 +54,7 @@ public class GrabService {
 //			System.out.println(doc.getFieldValue("id"));
 //		}
 		
+		
 		return mapGrab;
 	}
 	
@@ -237,10 +238,10 @@ public class GrabService {
 		
     	try {
 			@SuppressWarnings("deprecation")
-			CloudSolrServer server = new CloudSolrServer("hwk23.e-contact.cl:2181/solr");
+			CloudSolrServer server = new CloudSolrServer("hwk24.e-contact.cl:2181/solr");
 			
 			//server.setDefaultCollection("grabaciones_nuevo");
-			server.setDefaultCollection("collection1");
+			server.setDefaultCollection("coll-grab");
 			//SolrQuery solrQuery = new SolrQuery("*.*");
 			
 			ModifiableSolrParams parameters = buildSolrFilters(tipoConsulta);
@@ -251,6 +252,7 @@ public class GrabService {
 			idKeys = response1.getResults();
 			
 			server.close();
+			
 
     	} catch (SolrServerException| IOException e) {
     		mylib.console(1,"Error en getSolrIds ("+e.getMessage());
@@ -332,7 +334,7 @@ public class GrabService {
         parameters.set("q", q);
         parameters.set("start", 0);
         //parameters.set("rows", gDatos.getDr().getLimit());
-        parameters.set("rows", 100);
+        parameters.set("rows", 1000000);
         
         mylib.console("Filtro consulta q: "+q);
         

@@ -14,7 +14,7 @@ public class App3 {
 
 		@SuppressWarnings("deprecation")
 		CloudSolrServer server = new CloudSolrServer("hwk23:2181/solr");
-		server.setDefaultCollection("collection1_shard1_replica1");
+		server.setDefaultCollection("coll-grab");
 		SolrInputDocument doc = new SolrInputDocument();
 		doc.addField( "id", "r50");
 		doc.addField( "firstname_s", "A lovely summer holiday");
