@@ -20,8 +20,17 @@ public class sqlDB {
     boolean connected;
     
     //Getter and setter
+    
     public Statement getStm() {
 		return stm;
+	}
+
+	public Connection getConnection() {
+		return connection;
+	}
+
+	public void setConnection(Connection connection) {
+		this.connection = connection;
 	}
 
 	public void setStm(Statement stm) {
@@ -44,8 +53,12 @@ public class sqlDB {
 		this.timeOut = timeOut;
 	}
 
-	public boolean isConnected() {
-		return connected;
+	public boolean isConnected() throws Exception {
+		try {
+			return !connection.isClosed();
+		} catch (Exception e) {
+			throw new Exception(e.getMessage());
+		}
 	}
 
 	public void setConnected(boolean connected) {
@@ -152,6 +165,24 @@ public class sqlDB {
     		throw new Exception(e.getMessage());
     	}
     }
-	
+    
+    public boolean isExistRows() throws Exception {
+    	try {
+    		boolean result;
+    		if (stm.getResultSet()!=null) {
+    			if (stm.getResultSet().next()) {
+    				result = true;
+    			} else {
+    				result = false;
+    			}
+    		} else {
+    			result = false;
+    		}
+    		
+    		return result;
+    	} catch (Exception e) {
+    		throw new Exception(e.getMessage());
+    	}
+    }
 	
 }

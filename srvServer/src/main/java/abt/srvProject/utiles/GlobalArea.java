@@ -9,6 +9,7 @@ import abt.srvProject.model.Service;
 import abt.srvProject.model.Task;
 import abt.srvProject.srvRutinas.Rutinas;
 import abt.srvProject.model.Info;
+import abt.srvProject.model.Interval;
 
 public class GlobalArea {
 	Rutinas mylib = new Rutinas();
@@ -101,6 +102,63 @@ public class GlobalArea {
 				getLkdTask().add(tsk);
 			}
 			
+		} catch (Exception e) {
+			throw new Exception(e.getMessage());
+		}
+	}
+	
+	public synchronized void updateStatusTask(String keyTask, String status, String uStatus) throws Exception {
+		try {
+			if (!getMapTask().get(keyTask).getStatus().equals(status)) {
+				getMapTask().get(keyTask).setStatus(status);
+				getMapTask().get(keyTask).setFecUpdate(mylib.getDate());
+				getMapTask().get(keyTask).setuStatus(uStatus);
+	
+				switch (status) {
+				case "FINISHED":
+					getMapTask().get(keyTask).setFecFinished(mylib.getDate());
+					break;
+				default:
+					break;
+				}
+				
+				Interval interval = new Interval();
+				interval = (Interval) getMapTask().get(keyTask).getTxSubTask();
+				
+				if (!interval.getStatus().equals(status)) {
+					interval.setStatus(status);
+					interval.setFecUpdate(mylib.getDate());
+					if (status.equals("FINISHED")) {
+						interval.setFecFinished(mylib.getDate());
+					}
+				}
+				
+			}
+		} catch (Exception e) {
+			throw new Exception(e.getMessage());
+		}
+	}
+	
+	public synchronized void updateStatusTask(String keyTask, String status) throws Exception {
+		try {
+			try {
+				if (!getMapTask().get(keyTask).getStatus().equals(status)) {
+					getMapTask().get(keyTask).setStatus(status);
+					getMapTask().get(keyTask).setFecUpdate(mylib.getDate());
+		
+					Interval interval = new Interval();
+					interval = (Interval) getMapTask().get(keyTask).getTxSubTask();
+					
+					if (!interval.getStatus().equals(status)) {
+						interval.setStatus(status);
+						interval.setFecUpdate(mylib.getDate());
+					}
+					getMapTask().get(keyTask).setTxSubTask(interval);
+					
+				}
+			} catch (Exception e) {
+				throw new Exception(e.getMessage());
+			}
 		} catch (Exception e) {
 			throw new Exception(e.getMessage());
 		}

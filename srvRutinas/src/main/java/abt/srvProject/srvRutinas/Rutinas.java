@@ -196,7 +196,6 @@ public class Rutinas {
 			process.setnOrder(rs.getInt("nOrder"));
 			process.setProcID(rs.getString("procID"));
 			process.setType(rs.getString("type"));
-			process.setParams("object");
 		} catch (Exception e) {
 			throw new Exception(e.getMessage());
 		}
@@ -273,6 +272,10 @@ public class Rutinas {
 	public boolean isNull(String s) {
 	    return s == null ;
 
+	}
+	
+	public boolean isNull(Object o) {
+	    return o == null;
 	}
 	
 	public boolean isNullOrWhitespace(String s) {

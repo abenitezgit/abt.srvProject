@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.stream.Collectors;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -11,6 +12,7 @@ import org.apache.log4j.PropertyConfigurator;
 
 import abt.srvProject.model.Interval;
 import abt.srvProject.model.Module;
+import abt.srvProject.model.ProcControl;
 import abt.srvProject.model.Task;
 import abt.srvProject.srvRutinas.Rutinas;
 import abt.srvProject.utiles.GlobalArea;
@@ -66,6 +68,9 @@ public class ThRunProcess extends Thread{
     static class mainTask extends TimerTask {
     	Map<String, Boolean> mapThread = new HashMap<>();
     	Module module = new Module();
+    	
+    	//Declaracion de Thread de procesos
+    	Thread etlThread;
 
         //Constructor de la clase
         public mainTask() {
@@ -101,6 +106,32 @@ public class ThRunProcess extends Thread{
         		
         		//Revisa el Map de Ejecucion de Task
         		if (getNumTaskMap()>0) {
+        			//Genera lista de Task en estado READY
+        			Map<String, Task> mTask = gDatos.getMapTask()
+							.entrySet()
+							.stream()
+							.filter(p -> p.getValue().getStatus().equals("READY") )
+							.collect(Collectors.toMap(map -> map.getKey() , map -> map.getValue()));
+        			if (mTask.size()>0) {
+        				//Si es que hay Tareas en esta READY
+        				//Recorre las task para asignar thread de proceso respectivo
+        				for (Map.Entry<String, Task> entry : mTask.entrySet()) {
+        					String typeProc = entry.getValue().getTypeProc();
+        					switch (typeProc) {
+	        					case "ETL":
+	        						etlThread = new ThExecEtl(gDatos, entry.getValue());
+	        						etlThread.setName("EtlThread-"+etlThread.getId());
+	        						etlThread.start();
+	        						logger.info("Se generó Thread de ejecución: "+etlThread.getName());
+	        						break;
+	        					case "MOV":
+	        						break;
+	    						default:
+	    							break;
+        					}
+        					
+        				}
+        			}
         			
         		} else {
         			//No hay procesos para ejecutar
@@ -168,8 +199,6 @@ public class ThRunProcess extends Thread{
     			}
 
     			gDatos.addNewTaskMap(tsk);
-    			
-    			
     			
     			logger.info("Se ingreso nuevo Task: "+keyTask);
     		} else {

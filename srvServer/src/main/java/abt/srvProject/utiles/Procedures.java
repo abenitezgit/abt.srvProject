@@ -25,6 +25,35 @@ public class Procedures {
 		gDatos = m;
 	}
 	
+	public boolean validaTaskParam(Task task) {
+		try {
+			boolean response = true;
+			String typeProc = task.getTypeProc();
+			switch (typeProc) {
+				case "ETL":
+					if (mylib.isNullOrEmpty(task.getNumSecExec())) {
+						response = response && false;
+					}
+					if (mylib.isNullOrEmpty(task.getProcID())) {
+						response = response && false;
+					}
+					if (mylib.isNull(task.getParam())) {
+						response = response && false;
+					}
+					if (mylib.isNull(task.getTxSubTask())) {
+						response = response && false;
+					}
+					break;
+				default:
+					response = false;
+			}
+			return response;
+		} catch (Exception e) {
+			logger.error("Error validando parametros del Task: "+task.getKey());
+			return false;
+		}
+	}
+	
 	public void parseaTaskFromJson(Task task, JSONObject jTask) throws Exception {
 		try {
 			task.setErrCode(jTask.getInt("errCode"));
@@ -43,9 +72,27 @@ public class Procedures {
 		
 		try {
 			//Prepara el MapTask de Respuesta
-			Map<String, Task> mTSend = new HashMap<>(gDatos.getMapTask());
+			//Map<String, Task> mTSend = new HashMap<>(gDatos.getMapTask());
+			Map<String, Task> mTSend = new HashMap<>();
+			for (Map.Entry<String, Task> entry : gDatos.getMapTask().entrySet()) {
+				mTSend.put(entry.getKey(), entry.getValue());
+			}
+			//mTSend.putAll(gDatos.getMapTask());
+			Task tsk = new Task();
 			for (Map.Entry<String, Task> loopTask : mTSend.entrySet()) {
-				loopTask.getValue().setParam(null);
+				
+				String paso1 = mylib.serializeObjectToJSon(gDatos.getMapTask().get(loopTask.getKey()).getParam(), false);
+				logger.debug("Task Global Antes del setNull ("+loopTask.getKey()+"): "+paso1);
+				
+				tsk = new Task();
+				parseaTask(tsk, loopTask.getValue());
+				tsk.setParam(null);
+				
+				mTSend.put(loopTask.getKey(), tsk);
+				//loopTask.getValue().setParam(null);
+				
+				String paso2 = mylib.serializeObjectToJSon(gDatos.getMapTask().get(loopTask.getKey()).getParam(), false);
+				logger.debug("Task Global Despues del setNull ("+loopTask.getKey()+"): "+paso2);
 			}
 			
 			String service = mylib.serializeObjectToJSon(gDatos.getService(), false);
@@ -61,6 +108,28 @@ public class Procedures {
 			return jHeader.toString();
 		} catch (Exception e) {
 			return null;
+		}
+	}
+	
+	public void parseaTask(Task nt, Task at) throws Exception {
+		try {
+			nt.setErrCode(at.getErrCode());
+			nt.setErrMesg(at.getErrMesg());
+			nt.setFecFinished(at.getFecFinished());
+			nt.setFecIns(at.getFecIns());
+			nt.setFecUpdate(at.getFecUpdate());
+			nt.setKey(at.getKey());
+			nt.setNumSecExec(at.getNumSecExec());
+			nt.setParam(at.getParam());
+			nt.setProcID(at.getProcID());
+			nt.setSrvID(at.getSrvID());
+			nt.setStatus(at.getStatus());
+			nt.setTxResult(at.getTxResult());
+			nt.setTxSubTask(at.getTxSubTask());
+			nt.setTypeProc(at.getTypeProc());
+			nt.setuStatus(at.getuStatus());
+		} catch (Exception e) {
+			throw new Exception(e.getMessage());
 		}
 	}
 	
