@@ -1,10 +1,8 @@
 package abt.srvProject.utiles;
 
 import java.sql.ResultSet;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
@@ -356,7 +354,7 @@ public class Procedures {
 							process = new Proceso();
 							mylib.parseaProceso(process, rs);
 							
-							process.setParams(getDatalleProcess(process));
+							process.setParams(getDetalleProcess(process));
 							
 							lstProcess.add(process);
 						}
@@ -379,7 +377,7 @@ public class Procedures {
 		}
 	}
 	
-	public Object getDatalleProcess(Proceso process) throws Exception {
+	public Object getDetalleProcess(Proceso process) throws Exception {
         try {
         	Object param;
             switch (process.getType()) {
@@ -478,6 +476,7 @@ public class Procedures {
 			
 			if (dbConn.isConnected()) {
 				String vSql = dbQuery.getSqlFindMov(process.getProcID());
+				mylib.console("Query de FindMov: "+vSql);
 				if (dbConn.executeQuery(vSql)) {
 					ResultSet rs = dbConn.getQuery();
 					if (rs.next()) {

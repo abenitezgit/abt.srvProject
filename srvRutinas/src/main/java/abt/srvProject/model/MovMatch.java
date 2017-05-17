@@ -9,7 +9,7 @@ public class MovMatch {
 	String sourceType;
 	String destField;
 	int destLength;
-	String destType;
+	String fieldType;
 	
 	//Getter and Setter
 	
@@ -61,11 +61,11 @@ public class MovMatch {
 	public void setDestLength(int destLength) {
 		this.destLength = destLength;
 	}
-	public String getDestType() {
-		return destType;
+	public String getFieldType() {
+		return fieldType;
 	}
-	public void setDestType(String destType) {
-		this.destType = destType;
+	public void setFieldType(String fieldType) {
+		this.fieldType = fieldType;
 	}
 	
 }

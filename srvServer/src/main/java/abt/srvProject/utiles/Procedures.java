@@ -6,12 +6,17 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.net.Socket;
+import java.sql.ResultSet;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.json.JSONObject;
 
+import abt.srvProject.dataAccess.MetaData;
+import abt.srvProject.dataAccess.MetaQuery;
+import abt.srvProject.model.DbParam;
+import abt.srvProject.model.Mov;
 import abt.srvProject.model.Task;
 import abt.srvProject.srvRutinas.Rutinas;
 
@@ -29,23 +34,25 @@ public class Procedures {
 		try {
 			boolean response = true;
 			String typeProc = task.getTypeProc();
+
+			if (mylib.isNullOrEmpty(task.getNumSecExec())) {
+				response = response && false;
+			}
+			if (mylib.isNullOrEmpty(task.getProcID())) {
+				response = response && false;
+			}
+			if (mylib.isNull(task.getParam())) {
+				response = response && false;
+			}
+			
 			switch (typeProc) {
 				case "ETL":
-					if (mylib.isNullOrEmpty(task.getNumSecExec())) {
-						response = response && false;
-					}
-					if (mylib.isNullOrEmpty(task.getProcID())) {
-						response = response && false;
-					}
-					if (mylib.isNull(task.getParam())) {
-						response = response && false;
-					}
 					if (mylib.isNull(task.getTxSubTask())) {
 						response = response && false;
 					}
 					break;
 				default:
-					response = false;
+					response = true;
 			}
 			return response;
 		} catch (Exception e) {
@@ -66,6 +73,36 @@ public class Procedures {
 		}
 	}
 	
+	public void setDbParamMovSource(DbParam dbParamOrigen, Mov mov) throws Exception {
+		try {
+			dbParamOrigen.setDbHost(mov.getSIP());
+			dbParamOrigen.setDbInstance(mov.getSDBINSTANCE());
+			dbParamOrigen.setDbPort(mov.getSDBPORT());
+			dbParamOrigen.setDbType(mov.getSDBTYPE());
+			dbParamOrigen.setDbName(mov.getSDBNAME());
+			dbParamOrigen.setDbPass(mov.getSUSERPASS());
+			dbParamOrigen.setDbUser(mov.getSUSERNAME());
+		} catch (Exception e) {
+			logger.error("Error setDbParamMovSource ("+e.getMessage()+"): "+e.getMessage());
+			throw new Exception(e.getMessage());
+		}
+	}
+	
+	public void setDbParamMovDestino(DbParam dbParamDestino, Mov mov) throws Exception {
+		try {
+			dbParamDestino.setDbHost(mov.getDIP());
+			dbParamDestino.setDbInstance(mov.getDDBINSTANCE());
+			dbParamDestino.setDbPort(mov.getDDBPORT());
+			dbParamDestino.setDbType(mov.getDDBTYPE());
+			dbParamDestino.setDbName(mov.getDDBNAME());
+			dbParamDestino.setDbPass(mov.getDUSERPASS());
+			dbParamDestino.setDbUser(mov.getDUSERNAME());
+		} catch (Exception e) {
+			logger.error("Error setDbParamMovDestino ("+e.getMessage()+"): "+e.getMessage());
+			throw new Exception(e.getMessage());
+		}
+	}
+	
 	public String genMsgRequestSync() {
 		JSONObject jHeader = new JSONObject();
 		JSONObject jData = new JSONObject();
@@ -81,8 +118,8 @@ public class Procedures {
 			Task tsk = new Task();
 			for (Map.Entry<String, Task> loopTask : mTSend.entrySet()) {
 				
-				String paso1 = mylib.serializeObjectToJSon(gDatos.getMapTask().get(loopTask.getKey()).getParam(), false);
-				logger.debug("Task Global Antes del setNull ("+loopTask.getKey()+"): "+paso1);
+				//String paso1 = mylib.serializeObjectToJSon(gDatos.getMapTask().get(loopTask.getKey()).getParam(), false);
+				//logger.debug("Task Global Antes del setNull ("+loopTask.getKey()+"): "+paso1);
 				
 				tsk = new Task();
 				parseaTask(tsk, loopTask.getValue());
@@ -91,8 +128,8 @@ public class Procedures {
 				mTSend.put(loopTask.getKey(), tsk);
 				//loopTask.getValue().setParam(null);
 				
-				String paso2 = mylib.serializeObjectToJSon(gDatos.getMapTask().get(loopTask.getKey()).getParam(), false);
-				logger.debug("Task Global Despues del setNull ("+loopTask.getKey()+"): "+paso2);
+				//String paso2 = mylib.serializeObjectToJSon(gDatos.getMapTask().get(loopTask.getKey()).getParam(), false);
+				//logger.debug("Task Global Despues del setNull ("+loopTask.getKey()+"): "+paso2);
 			}
 			
 			String service = mylib.serializeObjectToJSon(gDatos.getService(), false);
@@ -128,6 +165,36 @@ public class Procedures {
 			nt.setTxSubTask(at.getTxSubTask());
 			nt.setTypeProc(at.getTypeProc());
 			nt.setuStatus(at.getuStatus());
+		} catch (Exception e) {
+			throw new Exception(e.getMessage());
+		}
+	}
+	
+	public void createTable(MetaData dbConn, Mov mov) throws Exception {
+		try {
+			MetaQuery myQuery = new MetaQuery(mov.getDDBTYPE());
+			String vSql = myQuery.getSqlCreateTable(mov);
+			logger.info("Query de creacion de tabla: "+vSql);
+			dbConn.executeUpdate(vSql);
+		} catch (Exception e) {
+			throw new Exception(e.getMessage());
+		}
+	}
+	
+	public boolean isTableExist(MetaData dbConn, String tbName, String dbType) throws Exception {
+		try {
+			boolean response=false;
+			MetaQuery myQuery = new MetaQuery(dbType);
+			String vSql = myQuery.getSqlTableExist(tbName);
+			if (dbConn.executeQuery(vSql)) {
+				ResultSet rs = dbConn.getQuery();
+				if (rs.next()) {
+					response = true;
+				}
+			} else {
+				throw new Exception("Error isTableExist()");
+			}
+			return response;
 		} catch (Exception e) {
 			throw new Exception(e.getMessage());
 		}

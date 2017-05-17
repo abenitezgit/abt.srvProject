@@ -193,7 +193,7 @@ public class GlobalArea {
 						}
 						break;
 					case "RUNNING":
-						if (getMapGroupControl().get(key).getStatus().equals("READY")) {
+						if (getMapGroupControl().get(key).getStatus().equals("READY") || getMapGroupControl().get(key).getStatus().equals("PENDING")) {
 							getMapGroupControl().get(key).setStatus(pc.getStatus());
 						}
 						break;

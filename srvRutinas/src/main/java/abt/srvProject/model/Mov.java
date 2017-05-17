@@ -29,6 +29,7 @@ public class Mov {
     String SDBINSTANCE;
     String SDBCONF;
     String SDBJDBC;
+    String SDBOWNER;
     String SUSERNAME;
     String SUSERPASS;
     String SUSERTYPE;
@@ -40,11 +41,16 @@ public class Mov {
     String DDBINSTANCE;
     String DDBCONF;
     String DDBJDBC;
+    String DDBOWNER;
     String DUSERNAME;
     String DUSERPASS;
     String DUSERTYPE;
-    String uStatus;
     int append;
+    int offset;
+    int createDest;
+    int maxRowsError;
+    int maxPctError;
+    int rollbackOnError;
     
     List<MovMatch> lstMovMatch = new ArrayList<>();
     
@@ -55,20 +61,68 @@ public class Mov {
 		return movID;
 	}
 
+	public String getSDBOWNER() {
+		return SDBOWNER;
+	}
+
+	public void setSDBOWNER(String sDBOWNER) {
+		SDBOWNER = sDBOWNER;
+	}
+
+	public String getDDBOWNER() {
+		return DDBOWNER;
+	}
+
+	public void setDDBOWNER(String dDBOWNER) {
+		DDBOWNER = dDBOWNER;
+	}
+
+	public int getOffset() {
+		return offset;
+	}
+
+	public void setOffset(int offset) {
+		this.offset = offset;
+	}
+
+	public int getCreateDest() {
+		return createDest;
+	}
+
+	public void setCreateDest(int createDest) {
+		this.createDest = createDest;
+	}
+
+	public int getMaxRowsError() {
+		return maxRowsError;
+	}
+
+	public void setMaxRowsError(int maxRowsError) {
+		this.maxRowsError = maxRowsError;
+	}
+
+	public int getMaxPctError() {
+		return maxPctError;
+	}
+
+	public void setMaxPctError(int maxPctError) {
+		this.maxPctError = maxPctError;
+	}
+
+	public int getRollbackOnError() {
+		return rollbackOnError;
+	}
+
+	public void setRollbackOnError(int rollbackOnError) {
+		this.rollbackOnError = rollbackOnError;
+	}
+
 	public int getAppend() {
 		return append;
 	}
 
 	public void setAppend(int append) {
 		this.append = append;
-	}
-
-	public String getuStatus() {
-		return uStatus;
-	}
-
-	public void setuStatus(String uStatus) {
-		this.uStatus = uStatus;
 	}
 
 	public void setMovID(String movID) {

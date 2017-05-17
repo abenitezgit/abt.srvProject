@@ -141,11 +141,11 @@ public class GlobalArea {
 	
 	public synchronized void updateStatusTask(String keyTask, String status) throws Exception {
 		try {
-			try {
-				if (!getMapTask().get(keyTask).getStatus().equals(status)) {
-					getMapTask().get(keyTask).setStatus(status);
-					getMapTask().get(keyTask).setFecUpdate(mylib.getDate());
-		
+			if (!getMapTask().get(keyTask).getStatus().equals(status)) {
+				getMapTask().get(keyTask).setStatus(status);
+				getMapTask().get(keyTask).setFecUpdate(mylib.getDate());
+	
+				if (getMapTask().get(keyTask).getTypeProc().equals("ETL")) {
 					Interval interval = new Interval();
 					interval = (Interval) getMapTask().get(keyTask).getTxSubTask();
 					
@@ -154,10 +154,8 @@ public class GlobalArea {
 						interval.setFecUpdate(mylib.getDate());
 					}
 					getMapTask().get(keyTask).setTxSubTask(interval);
-					
 				}
-			} catch (Exception e) {
-				throw new Exception(e.getMessage());
+				
 			}
 		} catch (Exception e) {
 			throw new Exception(e.getMessage());

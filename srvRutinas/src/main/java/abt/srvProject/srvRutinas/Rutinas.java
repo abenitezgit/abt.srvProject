@@ -74,7 +74,7 @@ public class Rutinas {
             movMatch.setSourceType(rs.getString("SOURCETYPE"));
             movMatch.setDestField(rs.getString("DESTFIELD"));
             movMatch.setDestLength(rs.getInt("DESTLENGTH"));
-            movMatch.setDestType(rs.getString("DESTTYPE"));
+            movMatch.setFieldType(rs.getString("FIELDTYPE"));
 		} catch (Exception e) {
 			throw new Exception(e.getMessage());
 		}
@@ -158,7 +158,8 @@ public class Rutinas {
         	mov.setSDBPORT(rs.getString("SDBPORT")); 
         	mov.setSDBINSTANCE(rs.getString("SDBINSTANCE")); 
         	mov.setSDBCONF(rs.getString("SDBCONF")); 
-        	mov.setSDBJDBC(rs.getString("SDBJDBC")); 
+        	mov.setSDBJDBC(rs.getString("SDBJDBC"));
+        	mov.setSDBOWNER(rs.getString("SDBOWNER"));
         	mov.setSUSERNAME(rs.getString("SUSERNAME")); 
         	mov.setSUSERPASS(rs.getString("SUSERPASS")); 
         	mov.setSUSERTYPE(rs.getString("SUSERTYPE")); 
@@ -170,10 +171,16 @@ public class Rutinas {
         	mov.setDDBINSTANCE(rs.getString("DDBINSTANCE")); 
         	mov.setDDBCONF(rs.getString("DDBCONF")); 
         	mov.setDDBJDBC(rs.getString("DDBJDBC")); 
+        	mov.setDDBOWNER(rs.getString("DDBOWNER"));
         	mov.setDUSERNAME(rs.getString("DUSERNAME")); 
         	mov.setDUSERPASS(rs.getString("DUSERPASS")); 
         	mov.setDUSERTYPE(rs.getString("DUSERTYPE")); 
         	mov.setAppend(rs.getInt("APPEND")); 
+        	mov.setOffset(rs.getInt("OFFSET"));
+        	mov.setCreateDest(rs.getInt("CREATEDEST"));
+        	mov.setMaxRowsError(rs.getInt("MAXROWSERROR"));
+        	mov.setMaxPctError(rs.getInt("MAXPCTERROR"));
+        	mov.setRollbackOnError(rs.getInt("ROLLBACKONERROR"));
 		} catch (Exception e) {
 			throw new Exception(e.getMessage());
 		}
@@ -269,6 +276,14 @@ public class Rutinas {
 	    return false;
 	}
 	
+	public String nvlString(String obj) {
+		if (obj==null) {
+			return "";
+		} else {
+			return obj;
+		}
+	}
+	
 	public boolean isNull(String s) {
 	    return s == null ;
 
@@ -344,6 +359,20 @@ public class Rutinas {
 			return formatter.parse(fecha);
 		} catch (Exception e) {
 			throw new Exception(e.getMessage());
+		}
+	}
+	
+	public String getDateString(String fecha, String formatIni, String formatFin) {
+		try {
+	    	SimpleDateFormat formatterIni;
+	    	SimpleDateFormat formatterFin;
+	    	formatterIni = new SimpleDateFormat(formatIni);
+	    	formatterFin = new SimpleDateFormat(formatFin);
+	    	Date tmp = formatterIni.parse(fecha);
+	    	
+	    	return formatterFin.format(tmp);
+		} catch (Exception e) {
+			return "";
 		}
 	}
 	

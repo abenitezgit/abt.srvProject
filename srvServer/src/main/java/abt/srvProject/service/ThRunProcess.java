@@ -12,7 +12,6 @@ import org.apache.log4j.PropertyConfigurator;
 
 import abt.srvProject.model.Interval;
 import abt.srvProject.model.Module;
-import abt.srvProject.model.ProcControl;
 import abt.srvProject.model.Task;
 import abt.srvProject.srvRutinas.Rutinas;
 import abt.srvProject.utiles.GlobalArea;
@@ -71,6 +70,7 @@ public class ThRunProcess extends Thread{
     	
     	//Declaracion de Thread de procesos
     	Thread etlThread;
+    	Thread movThread;
 
         //Constructor de la clase
         public mainTask() {
@@ -125,6 +125,10 @@ public class ThRunProcess extends Thread{
 	        						logger.info("Se generó Thread de ejecución: "+etlThread.getName());
 	        						break;
 	        					case "MOV":
+	        						movThread = new ThExecMov(gDatos, entry.getValue());
+	        						movThread.setName("MovThread-"+movThread.getId());
+	        						movThread.start();
+	        						logger.info("Se generó Thread de ejecución: "+movThread.getName());
 	        						break;
 	    						default:
 	    							break;

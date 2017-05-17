@@ -204,7 +204,7 @@ public class MetaQuery {
     	case "mySQL":
     		vSQL = 	"select " +
                     "  MOVID, MOVORDER, SOURCEFIELD, SOURCELENGTH, SOURCETYPE, " +
-                    "  DESTFIELD, DESTLENGTH, DESTTYPE " +
+                    "  DESTFIELD, DESTLENGTH, FIELDTYPE " +
                     "from  " +
                     "  TB_MOVMATCH " +
                     "where " +
@@ -225,7 +225,7 @@ public class MetaQuery {
     	case "mySQL":
     		vSQL = 	"select " +
                     "  MOVID, MOVORDER, SOURCEFIELD, SOURCELENGTH, SOURCETYPE, " +
-                    "  DESTFIELD, DESTLENGTH, DESTTYPE " +
+                    "  DESTFIELD, DESTLENGTH, FIELDTYPE " +
                     "from  " +
                     "  TB_MOVMATCH " +
                     "where " +
@@ -333,8 +333,9 @@ public class MetaQuery {
     	case "mySQL":
     		vSQL = 	"select  cfg.MOVID as MOVID, cfg.MOVDESC as MOVDESC, cfg.MOVENABLE as MOVENABLE, cli.CLIDESC as CLIDESC, " +
                     "        cfg.QUERYWHEREACTIVE as WHEREACTIVE, cfg.QUERYBODY as QUERYBODY, cfg.APPEND as APPEND, " +
-                    "        cfg.SOURCETBNAME as STBNAME,  cfg.DESTTBNAME as DTBNAME, " +
+                    "        cfg.SOURCETBNAME as STBNAME,  cfg.DESTTBNAME as DTBNAME, cfg.OFFSET as OFFSET, cfg.CREATEDEST as CREATEDEST, cfg.MAXROWSERROR as MAXROWSERROR, cfg.MAXPCTERROR as MAXPCTERROR, cfg.ROLLBACKONERROR as ROLLBACKONERROR, " +
                     "        srv.SERVERIP as SIP,  " +
+                    "		 usOwn.USERNAME as SDBOWNER, udOwn.USERNAME as DDBOWNER, " +	
                     "        db.DBDESC as SDBDESC, db.DBNAME as SDBNAME, db.DBTYPE as SDBTYPE, db.DBPORT as SDBPORT, db.DBINSTANCE as SDBINSTANCE, db.DBFILECONF as SDBCONF, db.DBJDBCSTRING as SDBJDBC, " +
                     "        usr.USERNAME as SUSERNAME, usr.USERPASS as SUSERPASS, usr.USERTYPE as SUSERTYPE, " +
                     "        srvD.SERVERIP as DIP, " +
@@ -342,6 +343,8 @@ public class MetaQuery {
                     "        usrD.USERNAME as DUSERNAME, usrD.USERPASS as DUSERPASS, usrD.USERTYPE as DUSERTYPE " +
                     "from " +
                     "  tb_movtb cfg, " +
+                    "  tb_user usOwn, " +
+                    "  tb_user udOwn, " +
                     "  tb_server srv, " +
                     "  tb_dbase db, " +
                     "  tb_client cli, " +
@@ -357,6 +360,8 @@ public class MetaQuery {
                     "  And cfg.DESTSERVERID = srvD.SERVERID " +
                     "  And cfg.DESTDBID = dbD.DBID " +
                     "  And cfg.DESTUSERID = usrD.USERID " +
+                    "  And cfg.DDBOWNER = udOwn.USERID " +
+                    "  And cfg.SDBOWNER = usOwn.USERID " +
                     "  And cfg.MOVID='"+ procID +"'  " +
                     "order by " +
                     "  MOVID";

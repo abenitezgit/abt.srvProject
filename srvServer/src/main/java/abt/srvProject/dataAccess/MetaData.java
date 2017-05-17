@@ -10,7 +10,6 @@ import java.sql.ResultSet;
 
 import abt.srvProject.model.DbParam;
 import abt.srvProject.srvRutinas.Rutinas;
-import abt.srvProject.utiles.GlobalArea;
 
 /**
  *

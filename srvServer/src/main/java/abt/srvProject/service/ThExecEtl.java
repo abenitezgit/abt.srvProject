@@ -1,18 +1,10 @@
 package abt.srvProject.service;
 
-import java.io.InputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.OutputStream;
-import java.net.ServerSocket;
-import java.net.Socket;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
-import org.json.JSONObject;
 
 import abt.srvProject.dataAccess.MetaData;
 import abt.srvProject.model.DbParam;
@@ -47,7 +39,7 @@ public class ThExecEtl extends Thread {
 				logger.info("Constructor iniciado");
 				logger.info("Logger Name: "+logger.getName());
 				logger.info("Logger Level: "+mylib.getLoggerLevel(logger));
-				logger.setLevel(Level.INFO);
+				//logger.setLevel(Level.INFO);
 				logger.info("Logger SET Level: "+mylib.getLoggerLevel(logger));
 				logger.trace("Logger Trace Enable");
 				logger.debug("Logger DEBUG Enable");
@@ -160,10 +152,11 @@ public class ThExecEtl extends Thread {
                  */
         		module.setLastFecFin(mylib.getDateNow());
         		gDatos.getMapModule().put(MODULE, module);
-        		logger.info("Finalizando Task ("+ task.getTypeProc()+ ") : "  + task.getKey());
+        		logger.info("Finalizando Exitoso Task ("+ task.getTypeProc()+ ") : "  + task.getKey());
 
                 
             } catch (Exception  e) {
+            	e.printStackTrace();
                 logger.error("Error general en "+MODULE+" ("+e.getMessage()+")");
                 /**
                  * Terminano Thread
@@ -174,7 +167,7 @@ public class ThExecEtl extends Thread {
                 today = new Date();
         		module.setLastFecFin(formatter.format(today));
         		gDatos.getMapModule().put(MODULE, module);
-        		logger.info("Finalizando Task ("+ task.getTypeProc()+ ") : "  + task.getKey());
+        		logger.info("Finalizando con Error Task ("+ task.getTypeProc()+ ") : "  + task.getKey());
             }
             
     	

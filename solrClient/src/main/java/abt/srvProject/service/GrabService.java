@@ -241,7 +241,7 @@ public class GrabService {
 			CloudSolrServer server = new CloudSolrServer("hwk24.e-contact.cl:2181/solr");
 			
 			//server.setDefaultCollection("grabaciones_nuevo");
-			server.setDefaultCollection("coll-grab");
+			server.setDefaultCollection("hbCollgdataIdx011");
 			//SolrQuery solrQuery = new SolrQuery("*.*");
 			
 			ModifiableSolrParams parameters = buildSolrFilters(tipoConsulta);
