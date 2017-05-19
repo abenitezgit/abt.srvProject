@@ -9,7 +9,7 @@ public class DataRequest {
 	String fechaHasta; //Formato YYYYMMDDHHMISS
 	String uniqueid;
 	String qrytext;
-	String fName;
+	String fname;
 	int limit;   //Limite de registros a retornar -1: unlimited
 	
 	//Getter ans Setter
@@ -17,11 +17,11 @@ public class DataRequest {
 	public String getOrg() {
 		return org;
 	}
-	public String getfName() {
-		return fName;
+	public String getFname() {
+		return fname;
 	}
-	public void setfName(String fName) {
-		this.fName = fName;
+	public void setFname(String fname) {
+		this.fname = fname;
 	}
 	public void setOrg(String org) {
 		this.org = org;

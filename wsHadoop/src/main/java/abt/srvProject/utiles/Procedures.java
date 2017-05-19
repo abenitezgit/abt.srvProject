@@ -21,13 +21,40 @@ public class Procedures {
 		return String.format("(%s) AND (%s)", filter1, filter2);
 	}
 	
+	private String builSubOrgQuery() {
+		String filter = String.format("suborg:%s", gDatos.getDr().getSuborg());
+		return filter;
+	}
+	
 	private String builTextQuery() {
 		String filter1 = String.format("%s", gDatos.getDr().getQrytext());
 		return filter1;
 	}
 	
+	private String builFnameQuery() {
+		String filter1 = String.format("fname:%s", gDatos.getDr().getFname());
+		return filter1;
+	}
+	
 	public Map<String, String> buildSolrFilters(int[] opcionConsulta) throws Exception {
 		try {
+            /**
+             * Se analizan las combinaciones de datos para establecer
+             * el tipo de consulta a realizar
+             * Setea la variable global dr (DataRequest)
+             * 
+             * Los tipos de resultados llenan una cadena de resultados por pisicion de la siguiente forma
+             * pos 0: org
+             * pos 1: suborg
+             * pos 2: fechaDesde
+             * pos 3: fechaHasta
+             * pos 4: fname
+             * pos 5: queryText
+             * pos 6: codigoError
+             * return 98: Error: Debe ingresar al menos un cliente y rango de fechas
+             * return 99: Error de Ejecución
+             */
+
 			Map<String, String> mapFilters = new HashMap<>();
 			//Genera q por default
 			String q = "*:*";
@@ -40,8 +67,24 @@ public class Procedures {
 				q = builTextQuery();
 			}
 			
+			//Parmetros de consulta dinamicos
+			String fq = fqFixes;
+			
+			if (opcionConsulta[1]==1) {
+				String filter = builSubOrgQuery();
+				fq = String.format("(%s) AND (%s)", fq, filter);
+				
+			}
+			
+			if (opcionConsulta[4]==1) {
+				String filter = builFnameQuery();
+				fq = String.format("(%s) AND (%s)", fq, filter);
+				
+			}
+			
+			
 			mapFilters.put("q", q);
-			mapFilters.put("fq", fqFixes);
+			mapFilters.put("fq", fq);
 			mapFilters.put("rows", String.valueOf(gDatos.getDr().getLimit()));
 			
 			mapFilters.put("key", "id");
@@ -106,7 +149,7 @@ public class Procedures {
         	if (!mylib.isNullOrEmpty(dr.getSuborg())) { tipoConsulta[1] = 1; }
         	if (!mylib.isNullOrEmpty(dr.getFechaDesde())) { tipoConsulta[2] = 1; }
         	if (!mylib.isNullOrEmpty(dr.getFechaHasta())) { tipoConsulta[3] = 1; }
-        	if (!mylib.isNullOrEmpty(dr.getfName())) { tipoConsulta[4] = 1; }
+        	if (!mylib.isNullOrEmpty(dr.getFname())) { tipoConsulta[4] = 1; }
         	if (!mylib.isNullOrEmpty(dr.getQrytext())) { tipoConsulta[5] = 1; }
         	
         	if (tipoConsulta[0]==0 || tipoConsulta[2]==0 || tipoConsulta[3]==0) {

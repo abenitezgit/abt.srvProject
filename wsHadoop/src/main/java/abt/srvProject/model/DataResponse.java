@@ -9,7 +9,6 @@ public class DataResponse {
 	String message;
 	int numFound;
 	int limit;
-	//Map<String, DataGrabacion> data = new HashMap<>();
 	HashMap<String, HashMap<String, String>> data = new HashMap<>();
 	
 	/*
