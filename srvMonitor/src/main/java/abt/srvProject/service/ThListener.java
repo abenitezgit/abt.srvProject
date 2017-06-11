@@ -93,6 +93,7 @@ public class ThListener extends Thread{
                     //
                     try {
                     	inputData  = (String) objInput.readObject();
+                    	logger.info("Recibiendo RX(): "+ inputData);
                     	
                     	/*
                     	 * Actualiza inicio de ejecucion del modulo
@@ -106,7 +107,7 @@ public class ThListener extends Thread{
                         
                         dAuth = jHeader.getString("auth");
                         dRequest = jHeader.getString("request");
-
+                        
                         if (dAuth.equals(gDatos.getInfo().getAuthKey())) {
                         	logger.info("Recibiendo RX("+ dRequest +"): "+ jData.toString());
                             switch (dRequest) {

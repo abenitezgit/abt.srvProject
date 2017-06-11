@@ -139,15 +139,23 @@ public class HBaseDB {
 			Table table = conn.getTable(TableName.valueOf(tbName));
 			List<Delete> lstDel = new ArrayList<>();
 			
+			mylib.console("Generando lista de Deletes para "+ lstKeys.size() + " keys...");
+			
+			int rowsDel=0;
 			for (int i=0; i<lstKeys.size(); i++) {
 				Delete delKey = new Delete(lstKeys.get(i).getBytes());
 				lstDel.add(delKey);
+				rowsDel++;
 			}
+			
+			mylib.console("Ejecutando borrado batch en Hbase....");
 			
 			table.delete(lstDel);
 
 			table.close();
 			conn.close();
+			
+			mylib.console("Se eliminaron "+ rowsDel + " filas desde Hbase");
 			
 		} catch (Exception e) {
 			throw new Exception(e.getMessage());
@@ -192,7 +200,7 @@ public class HBaseDB {
 			
 			mylib.console("Se recuperaron: "+mapRows.size()+ " filas desde SQLServer");
 			
-			mylib.console("Generando Lista de puts");
+			mylib.console("Generando Lista de puts...");
 			for (Entry<String, List<RowModel>> entry : mapRows.entrySet()) {
 				Put p = new Put(Bytes.toBytes(entry.getKey()));
 				

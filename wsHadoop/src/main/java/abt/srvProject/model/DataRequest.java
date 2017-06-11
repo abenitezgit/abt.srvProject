@@ -1,4 +1,4 @@
-package abt.srvProject.utiles;
+package abt.srvProject.model;
 
 public class DataRequest {
 	String org;
@@ -9,6 +9,7 @@ public class DataRequest {
 	String fechaHasta; //Formato YYYYMMDDHHMISS
 	String uniqueid;
 	String qrytext;
+	String duracion;
 	String fname;
 	int limit;   //Limite de registros a retornar -1: unlimited
 	
@@ -16,6 +17,12 @@ public class DataRequest {
 	
 	public String getOrg() {
 		return org;
+	}
+	public String getDuracion() {
+		return duracion;
+	}
+	public void setDuracion(String duracion) {
+		this.duracion = duracion;
 	}
 	public String getFname() {
 		return fname;

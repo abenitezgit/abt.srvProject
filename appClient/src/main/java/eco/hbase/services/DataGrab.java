@@ -2,9 +2,7 @@ package eco.hbase.services;
 
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
@@ -16,11 +14,15 @@ public class DataGrab {
 	Rutinas mylib = new Rutinas();
 	String fecIni;
 	String fecFin;
+	String org;
+	String suborg;
 	HashMap<String, List<RowModel>> mapGrab = new HashMap<>();
 	
-	public DataGrab (String fIni, String fFin) {
+	public DataGrab (String fIni, String fFin, String forg, String fsuborg) {
 		this.fecIni = fIni;
 		this.fecFin = fFin;
+		this.org = forg;
+		this.suborg = fsuborg;
 	}
 	
 	public HashMap<String, List<RowModel>> getMapGrab() throws Exception {
@@ -37,8 +39,8 @@ public class DataGrab {
     		mylib.console("Conectado a sqlServer...");
     		
     		String vSql = "select "
-    				+ " '2' ORG, "
-    				+ " '0' SUBORG, "
+    				+ " '"+org+"' ORG, "
+    				+ " '"+suborg+"' SUBORG, "
     				+ " UNIQUEID, "
     				+ " ANI, "
     				+ " DNIS, "
@@ -184,7 +186,9 @@ public class DataGrab {
 					rm.setValue(rs.getString("CORTELLAMADA"));
 					break;
 				}
-				lstRm.add(rm);
+				if (!mylib.isNullOrEmpty(rm.getValue())) {
+					lstRm.add(rm);
+				}
 			}
 			
 			

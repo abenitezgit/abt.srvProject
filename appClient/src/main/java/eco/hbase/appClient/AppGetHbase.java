@@ -75,21 +75,22 @@ public class AppGetHbase {
     	int reads=0;
     	for (SolrDocument doc: idKeys) {
     		JSONObject jo = new JSONObject(doc);
+    		System.out.println("jo: "+jo.toString());
 			//String key = (String) doc.getFieldValue("ttext");
     		
-    		List<String> lstArray = new ArrayList<>();
-    		lstArray = (List<String>) doc.getFieldValue("ttext");
+    		//List<String> lstArray = new ArrayList<>();
+    		//lstArray = (List<String>) doc.getFieldValue("ttext");
     		
     		
-    		Object obj = doc.getFieldValues("ttext");
+    		//Object obj = doc.getFieldValues("ttext");
     		
-    		System.out.println(obj.getClass().toString());
+    		//System.out.println(obj.getClass().toString());
     		
-    		List<String> lstArray2 = new ArrayList<>();
-    		lstArray2 = (List<String>) obj;
+//    		List<String> lstArray2 = new ArrayList<>();
+//    		lstArray2 = (List<String>) obj;
     		
-    		System.out.println("object: "+obj.toString());
-    		System.out.println("array: "+lstArray2.get(0));
+//    		System.out.println("object: "+obj.toString());
+//    		System.out.println("array: "+lstArray2.get(0));
     		
     		
     		//System.out.println("> "+jo.toString());
@@ -110,12 +111,14 @@ public class AppGetHbase {
 	
 	 static public ModifiableSolrParams buildSolrFilters() throws Exception {
 	        ModifiableSolrParams parameters = new ModifiableSolrParams();
-	        String q="buenas tardes";
-	        parameters.set("q", q);
+	        String q="id:+2+0+20170301_164106_00011008887663_958362763_TTR41-1488397266.1472013";
+	        parameters.set("q", "id:\"+2+0+20170301_164106_00011008887663_958362763_TTR41-1488397266.1472013\"");
 	        //parameters.set("fq", "[20161201 TO 20161231]");
-	        parameters.set("fl", "ttext, id, ani");
+	        //parameters.set("fl", "ttext, id, ani");
 	        parameters.set("start", 0);
 	        parameters.set("rows", 100);
+	        parameters.set("facet", "true");
+	        parameters.set("facet.field", "org");
 	        
 	        //mylib.console("Filtro consulta q: "+q);
 	        

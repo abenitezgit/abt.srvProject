@@ -90,6 +90,7 @@ public class ThListener extends Thread{
                     //
                     try {
                     	inputData  = (String) objInput.readObject();
+                    	logger.info("Recibiendo RX: "+inputData);
                         
                         jHeader = new JSONObject(inputData);
                         jData = jHeader.getJSONObject("data");
@@ -98,10 +99,13 @@ public class ThListener extends Thread{
                         dRequest = jHeader.getString("request");
 
                         if (dAuth.equals(gDatos.getInfo().getAuthKey())) {
-                        	logger.info("Recibiendo TX("+ dRequest +"): "+ jData.toString());
+                        	//logger.info("Recibiendo TX("+ dRequest +"): "+ jData.toString());
                             switch (dRequest) {
                             	case "getStatus":
                             		outputData = myproc.sendStatus();
+                            		break;
+                            	case "getTask":
+                            		outputData = myproc.sendTask();
                             		break;
                             	default:
                             		outputData = mylib.sendError(61);
@@ -122,6 +126,7 @@ public class ThListener extends Thread{
                     } 
                     
                     ObjOutput.writeObject(outputData);
+                    logger.info("Enviando TX(): "+ outputData);
                     
                     //Cierra Todas las conexiones
                     //

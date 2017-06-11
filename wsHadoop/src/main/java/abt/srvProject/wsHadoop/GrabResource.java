@@ -75,12 +75,6 @@ public class GrabResource {
 						
 						filters = myproc.buildSolrFilters(tipoConsulta);
 						
-//						filters.put("q", "*:*");
-//						filters.put("fq", "fecini:[20161202 TO 20161203]");
-//						//filters.put("q", "org:"+gDatos.getDr().getOrg()+ " AND fecini:["+gDatos.getDr().getFechaDesde()+" TO "+gDatos.getDr().getFechaHasta()+"]");
-//						filters.put("rows", "10");
-//						filters.put("key", "id");
-						
 						logger.info("Estableciendo conexion a Solr (indexaxion");
 						SolRDB solrConn = new SolRDB();
 			        	solrConn.setConfig(gDatos.getFileConfig(), gDatos.getHdpCluster());

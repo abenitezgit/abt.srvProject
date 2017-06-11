@@ -31,6 +31,8 @@ public class AppSolr {
         		filters.put("rows", "10");
         		filters.put("fl", "id");
         		filters.put("key", "id");
+        		filters.put("facet", "true");
+        		filters.put("facet.field", "suborg");
         		
         		Map<String, String> mapResponse = new HashMap<>(solrConn.getMapQuery(filters));
         		

@@ -108,6 +108,7 @@ public class SolRDB {
 			
 			SolrDocumentList docs = getQueryDocumentList();
 			
+			
 			for (SolrDocument doc: docs) {
 				JSONObject jo = new JSONObject(doc);
 				String keymap = (String) doc.getFieldValue(keyValue);

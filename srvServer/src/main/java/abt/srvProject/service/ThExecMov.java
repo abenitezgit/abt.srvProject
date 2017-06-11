@@ -150,6 +150,7 @@ public class ThExecMov extends Thread {
         							logger.info("Se procedió a borrar: "+result+" registros de tabla destino");
         						}
         						
+        						logger.info("Termino proceso");
         						int rowsLoad=0;
         						int rowsRead=0;
         						int maxRowsError = mov.getMaxRowsError();

@@ -16,11 +16,15 @@ public class DataC2C {
 	Rutinas mylib = new Rutinas();
 	String fecIni;
 	String fecFin;
+	String org;
+	String suborg;
 	HashMap<String, List<RowModel>> mapGrab = new HashMap<>();
 	
-	public DataC2C (String fIni, String fFin) {
+	public DataC2C (String fIni, String fFin, String forg, String fsuborg) {
 		this.fecIni = fIni;
 		this.fecFin = fFin;
+		this.org = forg;
+		this.suborg = fsuborg;
 	}
 	
 	public HashMap<String, List<RowModel>> getMapGrab() throws Exception {
@@ -37,8 +41,8 @@ public class DataC2C {
     		mylib.console("Conectado a sqlServer...");
     		
     		String vSql = "select "
-    				+ " '2' ORG, "
-    				+ " '2' SUBORG, "
+    				+ " '"+org+"' ORG, "
+    				+ " '"+suborg+"' SUBORG, "
     				+ " ANI, "
     				+ " DNIS, "
     				+ " RecordStartTime, "
@@ -50,7 +54,9 @@ public class DataC2C {
     				+ " RecordServerName, "
     				+ " CALLID01, "
     				+ " TENANT_DBID, "
-    				+ " TRANSCRIPTION "
+    				+ " TRANSCRIPTION, "
+    				+ " TRANSCRIPTION_ALT, "
+    				+ " TRANSCRIPTION03"
     				+ " from CALL_RECORD where tenant_dbid=7 and "
     				+ "		RecordStartTime  >= '" + fecIni + "' and "
     				+ "		RecordStartTime   < '" + fecFin + "'";
@@ -153,11 +159,23 @@ public class DataC2C {
 					rm.setFamily("f0");
 					rm.setValue(mylib.nvlString(rs.getString("TRANSCRIPTION")));
 					break;
+				case "TRANSCRIPTION_ALT":
+					rm.setColumn("ttext2");
+					rm.setFamily("f0");
+					rm.setValue(mylib.nvlString(rs.getString("TRANSCRIPTION_ALT")));
+					break;
+				case "TRANSCRIPTION03":
+					rm.setColumn("ttext3");
+					rm.setFamily("f0");
+					rm.setValue(mylib.nvlString(rs.getString("TRANSCRIPTION03")));
+					break;
 				default:
 					isAdd = false;
 				}
 				if (isAdd) {
-					lstRm.add(rm);
+					if (!mylib.isNullOrEmpty(rm.getValue())) {
+						lstRm.add(rm);
+					}
 				}
 			}
 			

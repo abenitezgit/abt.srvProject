@@ -1,20 +1,14 @@
 package eco.hbase.appClient;
 
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 import abt.srvProject.srvRutinas.Rutinas;
 import eco.hbase.dataAccess.HBaseDB;
-import eco.hbase.dataAccess.sqlDB;
-import eco.hbase.model.RowModel;
 import eco.hbase.services.DataC2C;
+import eco.hbase.services.DataEcoOper;
 import eco.hbase.services.DataGrab;
+import eco.hbase.services.DataOreka;
 
 /**
  * Hello world!
@@ -30,9 +24,10 @@ public class AppHbase {
     		//parametros de control
     		boolean borra = false;
     		boolean loadGrab = true;
-    		boolean loadOreka = false;
-    		boolean loadc2c = false;
-    		
+    		boolean loadOreka = true;
+    		boolean loadc2c = true;
+    		boolean loadVtr = true;
+    		boolean delVtr = false;
     		
     		//Conexion y seteo de HBASE
 	    	//Connect HBAse using Conf Files
@@ -55,29 +50,108 @@ public class AppHbase {
 		        
 		        mylib.console("Registros Eliminados");
 	        }
-
+	        
     		
-    		//Extrae datos de tabla "grabaciones"
-	        if (loadGrab) {
-	        	DataGrab dg = new DataGrab("2017-02-10 00:00:00","2017-03-01 00:00:00");
-	        	dg.executeDataGrab();
-		        hbConn.putRow(dg.getMapGrab());
-		        
-		        mylib.console("Total de Rows insertadas en HBASE: "+dg.getMapGrab().size());
-	        }
-	    	
+        	String fecini 	= "2016-01-01 00:00:00";
+        	String fecterm 	= "2016-02-01 00:00:00";
+        	
+        	Date dFecIni = mylib.getDate(fecini, "yyyy-MM-dd HH:mm:SS");
+        	Date dFecTerm = mylib.getDate(fecterm, "yyyy-MM-dd HH:mm:SS");
+        	
+        	int dias= mylib.getDaysDiff(dFecTerm, dFecIni);
+        	
+        	Date fecItIni = dFecIni;
+        	Date fecItFin = dFecIni;
+        	
+        	for (int i=0; i < dias; i++) {
+        		fecItIni = mylib.getDateAddDays(dFecIni,i);
+        		fecItFin = mylib.getDateAddDays(fecItIni,1);
+        		if (i==(dias-1)) {
+        			fecItFin = dFecTerm;
+        		}
+        		
+        		String sfecItIni = mylib.getStringDate(fecItIni, "yyyy-MM-dd HH:mm:SS");
+        		String sfecItFin = mylib.getStringDate(fecItFin, "yyyy-MM-dd HH:mm:SS");
+        		
+        		mylib.console("fecini: "+sfecItIni);
+        		mylib.console("fecfin: "+sfecItFin);
+        		
+    	        //Inicia ciclo de fechas por día
+    	        
+        		//Borra datos cargados en HBASE
+    	        if (delVtr) {
+    	        	mylib.console("DELETE VTR - en HBASE");
+    	        	mylib.console("Fecha Desde: "+sfecItIni);
+    	        	mylib.console("Fecha Hasta: "+sfecItFin);
+    	        	String org = "3";
+    	        	String suborg = "1";
+    	        	DataEcoOper dg = new DataEcoOper(sfecItIni,sfecItFin,org,suborg);
+    	        	
+    	        	hbConn.deleteKeys(dg.getOnlyKeys());
+    		        
+    		        mylib.console("Termino proceso Delete VTR");
+    	        }
 
-    		//Extrae datos de tabla "call_record"
-	        if (loadc2c) {
-	        	DataC2C dc = new DataC2C("2016-12-01 00:00:00","2016-12-31 23:59:59");
-	        	dc.executeDataGrab();
-		        hbConn.putRow(dc.getMapGrab());
-		        
-		        mylib.console("Total de Rows insertadas en HBASE: "+dc.getMapGrab().size());
-	        }
+        		
+        		//Extrae datos de tabla "grabaciones"
+    	        if (loadGrab) {
+    	        	mylib.console("ETL CLARO - tabla grabaciones");
+    	        	mylib.console("Fecha Desde: "+sfecItIni);
+    	        	mylib.console("Fecha Hasta: "+sfecItFin);
+    	        	String org = "2";
+    	        	String suborg = "0";
+    	        	DataGrab dg = new DataGrab(sfecItIni,sfecItFin,org,suborg);
+    	        	dg.executeDataGrab();
+    		        hbConn.putRow(dg.getMapGrab());
+    		        
+    		        mylib.console("Total de Rows insertadas en HBASE: "+dg.getMapGrab().size());
+    	        }
+    	    	
+        		//Extrae datos de tabla "base_oreka"
+    	        if (loadOreka) {
+    	        	mylib.console("ETL CLARO - tabla call_record base oreka");
+    	        	mylib.console("Fecha Desde: "+sfecItIni);
+    	        	mylib.console("Fecha Hasta: "+sfecItFin);
+    	        	String org = "2";
+    	        	String suborg = "1";
+    	        	DataOreka dg = new DataOreka(sfecItIni,sfecItFin,org,suborg);
+    	        	dg.executeDataGrab();
+    		        hbConn.putRow(dg.getMapGrab());
+    		        
+    		        mylib.console("Total de Rows insertadas en HBASE: "+dg.getMapGrab().size());
+    	        }
 
-	        
-	        
+        		//Extrae datos de tabla "call_record"
+    	        if (loadc2c) {
+    	        	mylib.console("ETL CLARO - C2C ");
+    	        	mylib.console("Fecha Desde: "+sfecItIni);
+    	        	mylib.console("Fecha Hasta: "+sfecItFin);
+    	        	String org = "2";
+    	        	String suborg = "2";
+    	        	DataC2C dc = new DataC2C(sfecItIni,sfecItFin,org,suborg);
+    	        	dc.executeDataGrab();
+    		        hbConn.putRow(dc.getMapGrab());
+    		        
+    		        mylib.console("Total de Rows insertadas en HBASE: "+dc.getMapGrab().size());
+    	        }
+
+        		//Extrae datos de tabla "call_record"
+    	        if (loadVtr) {
+    	        	mylib.console("ETL VTR - tabla call_record ECO_OPER S1");
+    	        	mylib.console("Fecha Desde: "+sfecItIni);
+    	        	mylib.console("Fecha Hasta: "+sfecItFin);
+    	        	String org = "3";
+    	        	String suborg = "0";
+    	        	DataEcoOper dc = new DataEcoOper(sfecItIni,sfecItFin,org,suborg);
+    	        	dc.executeDataGrab();
+    		        hbConn.putRow(dc.getMapGrab());
+    		        
+    		        mylib.console("Total de Rows insertadas en HBASE: "+dc.getMapGrab().size());
+    	        }
+
+        		
+        	}
+        
 	        System.exit(0);
 	        
 	        

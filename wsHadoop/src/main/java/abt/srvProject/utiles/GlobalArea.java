@@ -1,5 +1,6 @@
 package abt.srvProject.utiles;
 
+import abt.srvProject.model.DataRequest;
 
 public class GlobalArea {
 	Rutinas mylib = new Rutinas();

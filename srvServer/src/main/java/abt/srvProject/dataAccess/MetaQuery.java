@@ -151,9 +151,9 @@ public class MetaQuery {
 	
 	public String getSqlQuerySource(Mov mov) {
 		String vSQL="";
+		List<MovMatch> lstmm = new ArrayList<>();
 		switch (dbType) {
 			case "SQL":
-				List<MovMatch> lstmm = new ArrayList<>();
 				lstmm = mov.getLstMovMatch();
 				
 				if (lstmm.size()>0) {
@@ -192,6 +192,42 @@ public class MetaQuery {
 				}
 				break;
 			case "mySQL":
+				lstmm = mov.getLstMovMatch();
+				
+				if (lstmm.size()>0) {
+					MovMatch mm;
+					boolean isFirst = true;
+					for (int i=0; i<lstmm.size(); i++) {
+						mm = new MovMatch();
+						mm = lstmm.get(i);
+						if (isFirst) {
+							isFirst = false;
+						} else {
+							vSQL = vSQL + ",";
+						}
+						vSQL = vSQL + parseFieldType(mm.getSourceField(), mm.getFieldType());
+					}
+					
+					//Si se conformaron correctamente los campos a seleccionar se arma la sentencia de select
+					if (!mylib.isNullOrEmpty(vSQL)) {
+						//Agrega el select
+						vSQL = "select " + vSQL;
+						
+						//Agrega la tabla de consulta
+						vSQL = vSQL + " from " + parseTableName(mov.getSTBNAME(), mov.getSDBNAME(), mov.getSDBOWNER());
+						
+						//Valida si se agrega Where
+						if (mov.getWHEREACTIVE()==1) {
+							vSQL = vSQL + " " + mov.getQUERYBODY();
+						}
+						
+						
+					} else {
+						//Error, no se conformo bien la sentencia
+					}
+				} else {
+					//Error, no hay campos a recuperar
+				}
 				break;
 		}
 		

@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.sql.ResultSet;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 
 import org.apache.log4j.Logger;
@@ -342,11 +343,31 @@ public class Rutinas {
 		}
 	}
 	
+	public Date getDateAddDays(Date fecha, int days) throws Exception {
+		try {
+			Calendar calendar = Calendar.getInstance();
+			calendar.setTime(fecha);
+			calendar.add(Calendar.DAY_OF_MONTH, days);
+			return calendar.getTime();
+		} catch (Exception e) {
+			throw new Exception(e.getMessage());
+		}
+	}
+	
 	public Date getDate(String fecha) throws Exception {
 		try {
 			SimpleDateFormat formatter;
 			formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 			return formatter.parse(fecha);
+		} catch (Exception e) {
+			throw new Exception(e.getMessage());
+		}
+	}
+	
+	public int getDaysDiff(Date fecFin, Date fecIni) throws Exception {
+		try {
+			int dias=(int) ((fecFin.getTime()-fecIni.getTime())/86400000);
+			return dias;
 		} catch (Exception e) {
 			throw new Exception(e.getMessage());
 		}

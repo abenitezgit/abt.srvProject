@@ -259,6 +259,24 @@ public class Procedures {
 		}
 	}
 	
+	public String sendTask() {
+		/**
+		 * Debe retornar la respuesta formateada en json con jHeader y jData
+		 */
+		
+		Map<String, Object> mapResponse = new HashMap<>();
+		String data="";
+		
+		try {
+			mapResponse.put("task", gDatos.getMapTask());
+			data = mylib.serializeObjectToJSon(mapResponse, false);
+			
+			return mylib.msgResponse(0,"", data);
+		} catch (IOException e) {
+			return mylib.msgResponse(99, "Error proc: getTask ("+e.getMessage()+")","");
+		}
+	}
+	
 	public String sendStatus() {
 		/**
 		 * Debe retornar la respuesta formateada en json con jHeader y jData

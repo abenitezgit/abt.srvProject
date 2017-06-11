@@ -135,8 +135,10 @@ public class ThExecEtl extends Thread {
         					
         					
         					
-        					
-        					
+        					logger.info("Finalizando ETL-Interval");
+        					dbConnSource.close();
+        					dbConnDest.close();
+        					gDatos.updateStatusTask(task.getKey(), "FINISHED");
         				} else {
         					logger.error("No es posible conectarse a BD Origen: "+dbParamOrigen.getDbHost()+":"+dbParamOrigen.getDbName());
         				}

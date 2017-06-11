@@ -6,6 +6,7 @@ import java.util.Map.Entry;
 import org.apache.commons.lang3.StringUtils;
 
 import abt.srvProject.model.DataGrabacion;
+import abt.srvProject.model.DataRequest;
 
 public class Procedures {
 	Rutinas mylib = new Rutinas();
@@ -15,24 +16,39 @@ public class Procedures {
 		gDatos = m;
 	}
 	
-	private String builFixedQuery() {
+	private String buildFixedQuery() {
 		String filter1 = String.format("org:%s", gDatos.getDr().getOrg());
 		String filter2 = String.format("fecini:[%s TO %s]", gDatos.getDr().getFechaDesde(), gDatos.getDr().getFechaHasta());
 		return String.format("(%s) AND (%s)", filter1, filter2);
 	}
 	
-	private String builSubOrgQuery() {
+	private String buildSubOrgQuery() {
 		String filter = String.format("suborg:%s", gDatos.getDr().getSuborg());
 		return filter;
 	}
 	
-	private String builTextQuery() {
+	private String buildTextQuery() {
 		String filter1 = String.format("%s", gDatos.getDr().getQrytext());
 		return filter1;
 	}
 	
-	private String builFnameQuery() {
+	private String buildFnameQuery() {
 		String filter1 = String.format("fname:%s", gDatos.getDr().getFname());
+		return filter1;
+	}
+
+	private String buildAniQuery() {
+		String filter1 = String.format("ani:%s", gDatos.getDr().getAni());
+		return filter1;
+	}
+
+	private String buildDnisQuery() {
+		String filter1 = String.format("dnis:%s", gDatos.getDr().getDnis());
+		return filter1;
+	}
+
+	private String buildDuracionQuery() {
+		String filter1 = String.format("duracion:%s", gDatos.getDr().getDuracion());
 		return filter1;
 	}
 	
@@ -51,6 +67,9 @@ public class Procedures {
              * pos 4: fname
              * pos 5: queryText
              * pos 6: codigoError
+             * pos 7: ani
+             * pos 8: dnis
+             * pos 9: duracion
              * return 98: Error: Debe ingresar al menos un cliente y rango de fechas
              * return 99: Error de Ejecución
              */
@@ -60,28 +79,45 @@ public class Procedures {
 			String q = "*:*";
 			
 			//fq org, fecini, fecterm
-			String fqFixes = builFixedQuery();
+			String fqFixes = buildFixedQuery();
 			
 			if (opcionConsulta[5]==1) {
 				//Genera los q para los textos
-				q = builTextQuery();
+				q = buildTextQuery();
 			}
 			
 			//Parmetros de consulta dinamicos
 			String fq = fqFixes;
 			
 			if (opcionConsulta[1]==1) {
-				String filter = builSubOrgQuery();
+				String filter = buildSubOrgQuery();
 				fq = String.format("(%s) AND (%s)", fq, filter);
 				
 			}
 			
 			if (opcionConsulta[4]==1) {
-				String filter = builFnameQuery();
+				String filter = buildFnameQuery();
 				fq = String.format("(%s) AND (%s)", fq, filter);
 				
 			}
 			
+			if (opcionConsulta[7]==1) {
+				String filter = buildAniQuery();
+				fq = String.format("(%s) AND (%s)", fq, filter);
+				
+			}
+			
+			if (opcionConsulta[8]==1) {
+				String filter = buildDnisQuery();
+				fq = String.format("(%s) AND (%s)", fq, filter);
+				
+			}
+
+			if (opcionConsulta[9]==1) {
+				String filter = buildDuracionQuery();
+				fq = String.format("(%s) AND (%s)", fq, filter);
+				
+			}
 			
 			mapFilters.put("q", q);
 			mapFilters.put("fq", fq);
@@ -125,7 +161,7 @@ public class Procedures {
 	}
 	
     public int[] getTipoConsulta(DataRequest dr) {
-    	int[] tipoConsulta= {0,0,0,0,0,0,99};
+    	int[] tipoConsulta= {0,0,0,0,0,0,99,0,0,0};
     	
         try {
             /**
@@ -141,6 +177,9 @@ public class Procedures {
              * pos 4: fname
              * pos 5: queryText
              * pos 6: codigoError
+             * pos 7: ani
+             * pos 8: dnis
+             * pos 9: duracion
              * return 98: Error: Debe ingresar al menos un cliente y rango de fechas
              * return 99: Error de Ejecución
              */
@@ -151,6 +190,9 @@ public class Procedures {
         	if (!mylib.isNullOrEmpty(dr.getFechaHasta())) { tipoConsulta[3] = 1; }
         	if (!mylib.isNullOrEmpty(dr.getFname())) { tipoConsulta[4] = 1; }
         	if (!mylib.isNullOrEmpty(dr.getQrytext())) { tipoConsulta[5] = 1; }
+        	if (!mylib.isNullOrEmpty(dr.getAni())) { tipoConsulta[7] = 1; }
+        	if (!mylib.isNullOrEmpty(dr.getDnis())) { tipoConsulta[8] = 1; }
+        	if (!mylib.isNullOrEmpty(dr.getDuracion())) { tipoConsulta[9] = 1; }
         	
         	if (tipoConsulta[0]==0 || tipoConsulta[2]==0 || tipoConsulta[3]==0) {
         		tipoConsulta[6] = 98;
@@ -163,6 +205,5 @@ public class Procedures {
             return tipoConsulta;
         }
     }
-
 
 }
