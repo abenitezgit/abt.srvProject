@@ -167,7 +167,10 @@ public class Rutinas {
      		System.out.println(stype+" Console - " + msg);
      	}
      }
-
+     
+     public boolean isNullOrEmpty(String s) {
+	    return s == null || s.length() == 0;
+     }
     
      public String serializeObjectToJSon (Object object, boolean formated) throws IOException {
         org.codehaus.jackson.map.ObjectMapper mapper = new org.codehaus.jackson.map.ObjectMapper();

@@ -47,6 +47,13 @@ public class Rutinas {
 		}
 	}
 	
+	public void setIfNullEmpty(String source, String update) throws Exception {
+		if (isNullOrEmpty(source)) {
+			source = new String(update);
+		}
+		
+	}
+	
 	public String getUpdateString(String oldS, String newS, int flag) {
 		switch (flag) {
 			case 0:
@@ -297,6 +304,10 @@ public class Rutinas {
 	public boolean isNullOrWhitespace(String s) {
 	    return s == null || isWhitespace(s);
 
+	}
+
+	public boolean isNullOrEmpty(Object s) {
+	    return s == null;
 	}
 	
 	public boolean isNullOrEmpty(String s) {

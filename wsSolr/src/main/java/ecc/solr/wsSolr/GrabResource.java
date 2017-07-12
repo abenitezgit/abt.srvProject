@@ -16,6 +16,11 @@ import ecc.solr.services.GrabService;
 import ecc.solr.utiles.GlobalArea;
 import ecc.solr.utiles.Rutinas;
 
+/**
+ * 
+ * @author admin
+ * Post url: http://localhost:8080/wsSolr/webapi/grabaciones
+ */
 @Path("grabaciones")
 public class GrabResource {
 	GlobalArea gDatos = new GlobalArea();

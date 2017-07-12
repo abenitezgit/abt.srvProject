@@ -31,6 +31,48 @@ public class DataOreka {
 		return mapGrab;
 	}
 	
+	public List<String> getOnlyKeys()  throws Exception {
+		try {
+			List<String> lstKey = new ArrayList<>();
+    		//Extrae datos desde SQL
+			//172.17.233.185: s1-sqlnod02-vtr.callcenter.vtr.cl
+    		sqlDB sqlConn = new sqlDB("172.18.66.51","base_oreka","1433","sa","econtact2010",10);
+    		sqlConn.open();
+    		
+    		mylib.console("Conectado a sqlServer...");
+    		
+    		String vSql = "select "
+    				+ " RECORDNAME "
+    				+ " from call_record where "
+    				+ "		RECORDSTARTTIME  >= '" + fecIni + "' and "
+    				+ "		RECORDSTARTTIME   < '" + fecFin + "'";
+
+    		if (sqlConn.executeQuery(vSql)) {
+    			
+    			mylib.console("Query ejecutada...");
+    			
+    			ResultSet rs = sqlConn.getQuery();
+    			
+    			mylib.console("Recuperando Keys desde SQL Server...");
+    			
+    			//Generando lista de keys a borrar
+    			
+    			while (rs.next()) {
+    				String key = "+"+org+"+"+suborg+"+" + rs.getString("RECORDNAME");
+    				lstKey.add(key);
+    			}
+    			
+    			mylib.console("Se generaron "+ lstKey.size() + " keys para borrar");
+    			
+    			rs.close();
+    		}
+    		sqlConn.close();
+			return lstKey;
+		} catch (Exception e) {
+			throw new Exception(e.getMessage());
+		}
+	}
+	
 	public void executeDataGrab() throws Exception {
 		try {
 			
@@ -78,7 +120,7 @@ public class DataOreka {
 				    	//String fecIni = mylib.getDateString(rs.getString("FECHAINICIO"), "yyyy-MM-dd HH:mm:ss", "yyyyMMddHHmmss");
 				    	String fName = rs.getString("RECORDNAME");
 	
-	    				String key = "+" + rs.getString("ORG") + "+" + rs.getString("SUBORG") + "+" + fName;
+	    				String key = rs.getString("ORG") + "+" + rs.getString("SUBORG") + "+" + fName;
 						mapGrab.put(key, lstCq);
     				}
     			}

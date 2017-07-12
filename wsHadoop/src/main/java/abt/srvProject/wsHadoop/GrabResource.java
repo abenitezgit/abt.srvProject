@@ -37,11 +37,12 @@ public class GrabResource {
 		HashMap<String, HashMap<String, String>> mapResponse = new HashMap<>();
 		Map<String, DataGrabacion> mapResponseObject = new HashMap<>();
 		Map<String, String> filters = new HashMap<>();
-
+		
 		try {
 			boolean isSuccess = true;
 			int errCode=0;
 			String errMesg="";
+			
 			
 			if (gDatos.initComponent()) {
 				//Inicializando el log de proceso
@@ -71,7 +72,6 @@ public class GrabResource {
 					if (tipoConsulta[6]==0) {
 						
 						logger.info("Generando los filtros de consulta");
-						
 						
 						filters = myproc.buildSolrFilters(tipoConsulta);
 						

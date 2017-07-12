@@ -13,7 +13,6 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.CellUtil;
 import org.apache.hadoop.hbase.HBaseConfiguration;
-import org.apache.hadoop.hbase.HTableDescriptor;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.*;
 import org.apache.hadoop.hbase.filter.BinaryComparator;
@@ -31,6 +30,10 @@ public class HBaseDB {
 	Rutinas mylib = new Rutinas();
 	Configuration hcfg  = HBaseConfiguration.create();
 	String tbName;
+	
+	public Configuration getHcfg() throws Exception {
+		return hcfg;
+	}
 
 	public void setConfig(String filePropertiesPath, String HBProperty) throws Exception {
 		try {
@@ -139,23 +142,23 @@ public class HBaseDB {
 			Table table = conn.getTable(TableName.valueOf(tbName));
 			List<Delete> lstDel = new ArrayList<>();
 			
-			mylib.console("Generando lista de Deletes para "+ lstKeys.size() + " keys...");
+			//mylib.console("Generando lista de Deletes para "+ lstKeys.size() + " keys...");
 			
-			int rowsDel=0;
+			//int rowsDel=0;
 			for (int i=0; i<lstKeys.size(); i++) {
 				Delete delKey = new Delete(lstKeys.get(i).getBytes());
 				lstDel.add(delKey);
-				rowsDel++;
+				//rowsDel++;
 			}
 			
-			mylib.console("Ejecutando borrado batch en Hbase....");
+			//mylib.console("Ejecutando borrado batch en Hbase....");
 			
 			table.delete(lstDel);
 
 			table.close();
 			conn.close();
 			
-			mylib.console("Se eliminaron "+ rowsDel + " filas desde Hbase");
+			//mylib.console("Se eliminaron "+ rowsDel + " filas desde Hbase");
 			
 		} catch (Exception e) {
 			throw new Exception(e.getMessage());

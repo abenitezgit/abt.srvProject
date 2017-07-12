@@ -84,15 +84,12 @@ public class GlobalArea {
     }
     
     public void fillLstSolrServers() throws Exception {
-        lstSolrServers.add("hwk23:2181");
-        lstSolrServers.add("hwk24:2181");
-        lstSolrServers.add("hwk25:2181");
+        lstSolrServers.add("cloudera4:2181/solr");
+        lstSolrServers.add("cloudera5:2181/solr");
         StringBuilder str = new StringBuilder();
-        
-        str.append("");
-        
+                
         for (String lst : lstSolrServers) {
-            if (str.equals("")) {
+            if (str.length()==0) {
                 str.append(lst);
             } else {
                 str.append(","+lst);
@@ -103,9 +100,9 @@ public class GlobalArea {
     }
     
     public void fillLstHbConfFiles() throws Exception {
-        lstHbConfFiles.add("/usr/local/hbase/conf/ecoprod01/hbase-site.xml");
-        lstHbConfFiles.add("/usr/local/hbase/conf/ecoprod01/core-site.xml");
-        lstHbConfFiles.add("/usr/local/hbase/conf/ecoprod01/hdfs-site.xml");
+        lstHbConfFiles.add("/usr/local/hadoop/conf/ecchdp1/hbase-site.xml");
+        lstHbConfFiles.add("/usr/local/hadoop/conf/ecchdp1/core-site.xml");
+        lstHbConfFiles.add("/usr/local/hadoop/conf/ecchdp1/hdfs-site.xml");
     }
     
     public void fillDataRequest(String dataInput) throws Exception {

@@ -23,5 +23,6 @@
 			<attribute name="maven.pomderived" value="true"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry kind="lib" path="/Users/admin/Documents/Developer/javaLibraries/javaLibs_Jave/jave-1.0.2/jave-1.0.2.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>

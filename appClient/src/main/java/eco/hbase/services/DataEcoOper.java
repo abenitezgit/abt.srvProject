@@ -36,7 +36,7 @@ public class DataEcoOper {
 			List<String> lstKey = new ArrayList<>();
     		//Extrae datos desde SQL
 			//172.17.233.185: s1-sqlnod02-vtr.callcenter.vtr.cl
-    		sqlDB sqlConn = new sqlDB("172.17.233.185","eco_oper","1433","sqlAdmin","adminSql01",10);
+    		sqlDB sqlConn = new sqlDB("172.17.233.185","eco_oper","1433","sqlAdmin","adminSQL1",10);
     		sqlConn.open();
     		
     		mylib.console("Conectado a sqlServer...");
@@ -122,7 +122,7 @@ public class DataEcoOper {
 				    	//String fecIni = mylib.getDateString(rs.getString("FECHAINICIO"), "yyyy-MM-dd HH:mm:ss", "yyyyMMddHHmmss");
 				    	String fName = rs.getString("RECORDNAME");
 	
-	    				String key = "+" + rs.getString("ORG") + "+" + rs.getString("SUBORG") + "+" + fName;
+	    				String key = rs.getString("ORG") + "+" + rs.getString("SUBORG") + "+" + fName;
 						mapGrab.put(key, lstCq);
     				}
     			}

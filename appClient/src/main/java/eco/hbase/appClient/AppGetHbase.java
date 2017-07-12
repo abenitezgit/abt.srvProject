@@ -58,6 +58,7 @@ public class AppGetHbase {
 			//System.out.println("Total keys: "+response1.getResults().size());
 			idKeys = response1.getResults();
 			
+			
 			server.close();
 
     	} catch (SolrServerException| IOException e) {
@@ -111,12 +112,11 @@ public class AppGetHbase {
 	
 	 static public ModifiableSolrParams buildSolrFilters() throws Exception {
 	        ModifiableSolrParams parameters = new ModifiableSolrParams();
-	        String q="id:+2+0+20170301_164106_00011008887663_958362763_TTR41-1488397266.1472013";
-	        parameters.set("q", "id:\"+2+0+20170301_164106_00011008887663_958362763_TTR41-1488397266.1472013\"");
-	        //parameters.set("fq", "[20161201 TO 20161231]");
+	        parameters.set("q", "*:*");
+	        parameters.set("fq", "fecini:[20161201 TO 20170101] AND org:2 AND suborg:1");
 	        //parameters.set("fl", "ttext, id, ani");
 	        parameters.set("start", 0);
-	        parameters.set("rows", 100);
+	        parameters.set("rows", 10000);
 	        parameters.set("facet", "true");
 	        parameters.set("facet.field", "org");
 	        

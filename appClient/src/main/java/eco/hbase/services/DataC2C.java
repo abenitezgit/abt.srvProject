@@ -31,6 +31,49 @@ public class DataC2C {
 		return mapGrab;
 	}
 	
+	public List<String> getOnlyKeys()  throws Exception {
+		try {
+			List<String> lstKey = new ArrayList<>();
+    		//Extrae datos desde SQL
+			//172.17.233.185: s1-sqlnod02-vtr.callcenter.vtr.cl
+    		sqlDB sqlConn = new sqlDB("eco-sql-002.e-contact.cl","cfg_grabaciones","1433","sqlAdmin","Adminsql02",10);
+    		sqlConn.open();
+    		
+    		mylib.console("Conectado a sqlServer...");
+    		
+    		String vSql = "select "
+    				+ " RecordName "
+    				+ " from CALL_RECORD where tenant_dbid=7 and "
+    				+ "		RecordStartTime  >= '" + fecIni + "' and "
+    				+ "		RecordStartTime   < '" + fecFin + "'";
+
+    		if (sqlConn.executeQuery(vSql)) {
+    			
+    			mylib.console("Query ejecutada...");
+    			
+    			ResultSet rs = sqlConn.getQuery();
+    			
+    			mylib.console("Recuperando Keys desde SQL Server...");
+    			
+    			//Generando lista de keys a borrar
+    			
+    			while (rs.next()) {
+    				String key = org+"+"+suborg+"+" + rs.getString("RecordName");
+    				lstKey.add(key);
+    			}
+    			
+    			mylib.console("Se generaron "+ lstKey.size() + " keys para borrar");
+    			
+    			rs.close();
+    		}
+    		sqlConn.close();
+			return lstKey;
+		} catch (Exception e) {
+			throw new Exception(e.getMessage());
+		}
+	}
+
+	
 	public void executeDataGrab() throws Exception {
 		try {
 			
@@ -77,7 +120,7 @@ public class DataC2C {
 			    	//String fecIni = mylib.getDateString(rs.getString("RecordStartTime"), "yyyy-MM-dd HH:mm:ss", "yyyyMMddHHmmss");
 			    	String fName = rs.getString("RecordName");
 
-    				String key = "+" + rs.getString("ORG") + "+" + rs.getString("SUBORG") + "+" + fName;
+    				String key = rs.getString("ORG") + "+" + rs.getString("SUBORG") + "+" + fName;
 					mapGrab.put(key, lstCq);
     			}
     			

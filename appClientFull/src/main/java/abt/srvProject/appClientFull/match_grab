@@ -1,0 +1,86 @@
+p.add(Bytes.toBytes("cf1"), Bytes.toBytes("01"), Bytes.toBytes(StringUtils.defaultIfBlank(grabacion.getAni(),"")));//ani;//cf1:01
+p.add(Bytes.toBytes("cf1"), Bytes.toBytes("02"), Bytes.toBytes(StringUtils.defaultIfBlank(grabacion.getDnis(),"")));//dnis;//cf1:02
+p.add(Bytes.toBytes("cf1"), Bytes.toBytes("03"), Bytes.toBytes(StringUtils.defaultIfBlank(grabacion.getNumerodiscado(),"")));//numerodiscado;//cf1:03
+p.add(Bytes.toBytes("cf1"), Bytes.toBytes("04"), Bytes.toBytes(StringUtils.defaultIfBlank(grabacion.getConnid(),"")));//connid;//cf1:04
+p.add(Bytes.toBytes("cf1"), Bytes.toBytes("05"), Bytes.toBytes(StringUtils.defaultIfBlank(grabacion.getUniqueid(),"")));//uniqueid;//cf1:05
+p.add(Bytes.toBytes("cf1"), Bytes.toBytes("06"), Bytes.toBytes(StringUtils.defaultIfBlank(grabacion.getStarttime(),"")));//starttime;//cf1:06
+p.add(Bytes.toBytes("cf1"), Bytes.toBytes("07"), Bytes.toBytes(StringUtils.defaultIfBlank(grabacion.getEndtime(),"")));//String endtime;//cf1:07
+p.add(Bytes.toBytes("cf1"), Bytes.toBytes("08"), Bytes.toBytes(StringUtils.defaultIfBlank(grabacion.getFecha(),"")));//String fecha;//cf1:08
+p.add(Bytes.toBytes("cf1"), Bytes.toBytes("09"), Bytes.toBytes(StringUtils.defaultIfBlank(grabacion.getDurationtotal(),"")));//durationtotal;//cf1:09
+p.add(Bytes.toBytes("cf1"), Bytes.toBytes("10"), Bytes.toBytes(StringUtils.defaultIfBlank(grabacion.getStatuschannel(),"")));//statuschannel;//cf1:10
+p.add(Bytes.toBytes("cf1"), Bytes.toBytes("11"), Bytes.toBytes(StringUtils.defaultIfBlank(grabacion.getChannel(),"")));//channel;//cf1:11
+p.add(Bytes.toBytes("cf1"), Bytes.toBytes("12"), Bytes.toBytes(StringUtils.defaultIfBlank(grabacion.getProveedor(),"")));//proveedor;//cf1:12
+p.add(Bytes.toBytes("cf1"), Bytes.toBytes("13"), Bytes.toBytes(StringUtils.defaultIfBlank(grabacion.getAsteriskserver(),"")));//asteriskserver;//cf1:13
+p.add(Bytes.toBytes("cf1"), Bytes.toBytes("14"), Bytes.toBytes(StringUtils.defaultIfBlank(grabacion.getServicio(),"")));//servicio;//cf1:14
+p.add(Bytes.toBytes("cf1"), Bytes.toBytes("15"), Bytes.toBytes(StringUtils.defaultIfBlank(grabacion.getCallsonline(),"")));//callsonline;//cf1:15
+p.add(Bytes.toBytes("cf1"), Bytes.toBytes("16"), Bytes.toBytes(StringUtils.defaultIfBlank(grabacion.getPathrecorder(),"")));//pathrecorder;//cf1:16
+p.add(Bytes.toBytes("cf1"), Bytes.toBytes("17"), Bytes.toBytes(StringUtils.defaultIfBlank(grabacion.getNamerecorder(),"")));//namerecorder;//cf1:17
+p.add(Bytes.toBytes("cf1"), Bytes.toBytes("18"), Bytes.toBytes(StringUtils.defaultIfBlank(grabacion.getRecordnum(),"")));//recordnum;//cf1:18
+p.add(Bytes.toBytes("cf1"), Bytes.toBytes("19"), Bytes.toBytes(StringUtils.defaultIfBlank(grabacion.getAttributethisqueue(),"")));//attributethisqueue;//cf1:19
+p.add(Bytes.toBytes("cf1"), Bytes.toBytes("20"), Bytes.toBytes(StringUtils.defaultIfBlank(grabacion.getAttributeotherdn(),"")));//attributeotherdn;//cf1:20
+p.add(Bytes.toBytes("cf1"), Bytes.toBytes("21"), Bytes.toBytes(StringUtils.defaultIfBlank(grabacion.getAttributethisdn(),"")));//attributethisdn;//cf1:21
+p.add(Bytes.toBytes("cf1"), Bytes.toBytes("22"), Bytes.toBytes(StringUtils.defaultIfBlank(grabacion.getUserdata2genesys(),"")));//userdata2genesys;//cf1:22
+p.add(Bytes.toBytes("cf1"), Bytes.toBytes("23"), Bytes.toBytes(StringUtils.defaultIfBlank(grabacion.getVirtualqueue(),"")));//virtualqueue;//cf1:23
+p.add(Bytes.toBytes("cf1"), Bytes.toBytes("24"), Bytes.toBytes(StringUtils.defaultIfBlank(grabacion.getSipcallerid(),"")));//sipcallerid;//cf1:24
+p.add(Bytes.toBytes("cf1"), Bytes.toBytes("25"), Bytes.toBytes(StringUtils.defaultIfBlank(grabacion.getCodigoservicio(),"")));//codigoservicio;//cf1:25
+p.add(Bytes.toBytes("cf1"), Bytes.toBytes("26"), Bytes.toBytes(StringUtils.defaultIfBlank(grabacion.getInteraction_id(),"")));//interaction_id;//cf1:26
+p.add(Bytes.toBytes("cf1"), Bytes.toBytes("27"), Bytes.toBytes(StringUtils.defaultIfBlank(grabacion.getResultado_segmento(),"")));//resultado_segmento;//cf1:27
+p.add(Bytes.toBytes("cf1"), Bytes.toBytes("28"), Bytes.toBytes(StringUtils.defaultIfBlank(grabacion.getTtr(),"")));//ttr;//cf1:28
+p.add(Bytes.toBytes("cf1"), Bytes.toBytes("29"), Bytes.toBytes(StringUtils.defaultIfBlank(grabacion.getUrl(),"")));//url;//cf1:29
+p.add(Bytes.toBytes("cf1"), Bytes.toBytes("30"), Bytes.toBytes(StringUtils.defaultIfBlank(grabacion.getTipo_interaction(),"")));//tipo_interaction;//cf1:30
+p.add(Bytes.toBytes("cf1"), Bytes.toBytes("31"), Bytes.toBytes(StringUtils.defaultIfBlank(grabacion.getSkill(),"")));//skill;//cf1:31
+p.add(Bytes.toBytes("cf1"), Bytes.toBytes("32"), Bytes.toBytes(StringUtils.defaultIfBlank(grabacion.getTipo_recurso(),"")));//tipo_recurso;//cf1:32
+p.add(Bytes.toBytes("cf1"), Bytes.toBytes("33"), Bytes.toBytes(StringUtils.defaultIfBlank(grabacion.getNombre_recurso(),"")));//nombre_recurso;//cf1:33
+p.add(Bytes.toBytes("cf1"), Bytes.toBytes("34"), Bytes.toBytes(StringUtils.defaultIfBlank(grabacion.getRut(),"")));//rut;//cf1:34
+p.add(Bytes.toBytes("cf1"), Bytes.toBytes("35"), Bytes.toBytes(StringUtils.defaultIfBlank(grabacion.getNombre(),"")));//nombre;//cf1:35
+p.add(Bytes.toBytes("cf1"), Bytes.toBytes("36"), Bytes.toBytes(StringUtils.defaultIfBlank(grabacion.getGestion(),"")));//gestion;//cf1:36
+p.add(Bytes.toBytes("cf1"), Bytes.toBytes("37"), Bytes.toBytes(StringUtils.defaultIfBlank(grabacion.getRol_recurso(),"")));//rol_recurso;//cf1:37
+p.add(Bytes.toBytes("cf1"), Bytes.toBytes("38"), Bytes.toBytes(StringUtils.defaultIfBlank(grabacion.getAgente(),"")));//agente;//cf1:38
+p.add(Bytes.toBytes("cf1"), Bytes.toBytes("39"), Bytes.toBytes(StringUtils.defaultIfBlank(grabacion.getIdcdr(),"")));//idcdr;//cf1:39
+p.add(Bytes.toBytes("cf1"), Bytes.toBytes("40"), Bytes.toBytes(StringUtils.defaultIfBlank(grabacion.getInfogestion(),"")));//infogestion;//cf1:40
+p.add(Bytes.toBytes("cf1"), Bytes.toBytes("41"), Bytes.toBytes(StringUtils.defaultIfBlank(grabacion.getBkpftp(),"")));//bkpftp;//cf1:41
+p.add(Bytes.toBytes("cf1"), Bytes.toBytes("42"), Bytes.toBytes(StringUtils.defaultIfBlank(grabacion.getPathrecorder2(),"")));//pathrecorder2;//cf1:42
+
+
++ " ANI, "
++ " DNIS, "
++ " NUMERODISCADO, "
++ " CONNID, "
++ " UNIQUEID, "
++ " STARTTIME, "
++ " ENDTIME, "
++ " FECHA, "
++ " DURATIONTOTAL, "
++ " STATUSCHANNEL, "
++ " CHANNEL, "
++ " PROVEEDOR, "
++ " ASTERISKSERVER, "
++ " SERVICIO, "
++ " CALLSONLINE, "
++ " PATHRECORDER, "
++ " NAMERECORDER, "
++ " RECORDNUM, "
++ " ATTRIBUTETHISQUEUE, "
++ " ATTRIBUTEOTHERDN, "
++ " ATTRIBUTETHISDN, "
++ " USERDATA2GENESYS, "
++ " VIRTUALQUEUE, "
++ " SIPCALLERID, "
++ " CODIGOSERVICIO, "
++ " INTERACTION_ID, "
++ " RESULTADO_SEGMENTO, "
++ " TTR, "
++ " URL, "
++ " TIPO_INTERACTION, "
++ " SKILL, "
++ " TIPO_RECURSO, "
++ " NOMBRE_RECURSO, "
++ " RUT, "
++ " NOMBRE, "
++ " GESTION, "
++ " ROL_RECURSO, "
++ " AGENTE, "
++ " IDCDR, "
++ " INFOGESTION, "
++ " BKPFTP, "
++ " PATHRECORDER2 "

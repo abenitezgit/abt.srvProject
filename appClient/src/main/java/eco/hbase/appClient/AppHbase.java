@@ -22,12 +22,18 @@ public class AppHbase {
     {
     	try {
     		//parametros de control
-    		boolean borra = false;
     		boolean loadGrab = true;
-    		boolean loadOreka = true;
+    		boolean loadOreka = false;
     		boolean loadc2c = true;
-    		boolean loadVtr = true;
+    		boolean loadVtr = false;
+    		
+    		boolean delGrab = false;
+    		boolean delOreka = false;
+    		boolean delc2c = false;
     		boolean delVtr = false;
+    		
+        	String fecini 	= "2016-12-01 00:00:00";
+        	String fecterm 	= "2017-01-01 00:00:00";
     		
     		//Conexion y seteo de HBASE
 	    	//Connect HBAse using Conf Files
@@ -41,20 +47,6 @@ public class AppHbase {
 	        
 	        mylib.console("Conectado a Hbase...");
 	        
-	        
-	        //Borra todos los datos de hbase grabdata
-	        if (borra) {
-		        mylib.console("Eiminando todos los registros de la tabla: "+tbName);
-		        
-		        hbConn.deleteKeys(hbConn.getAllKeys());
-		        
-		        mylib.console("Registros Eliminados");
-	        }
-	        
-    		
-        	String fecini 	= "2016-01-01 00:00:00";
-        	String fecterm 	= "2016-02-01 00:00:00";
-        	
         	Date dFecIni = mylib.getDate(fecini, "yyyy-MM-dd HH:mm:SS");
         	Date dFecTerm = mylib.getDate(fecterm, "yyyy-MM-dd HH:mm:SS");
         	
@@ -77,6 +69,48 @@ public class AppHbase {
         		mylib.console("fecfin: "+sfecItFin);
         		
     	        //Inicia ciclo de fechas por día
+        		
+        		//Borra datos cargados en HBASE
+    	        if (delGrab) {
+    	        	mylib.console("DELETE GRAB - en HBASE");
+    	        	mylib.console("Fecha Desde: "+sfecItIni);
+    	        	mylib.console("Fecha Hasta: "+sfecItFin);
+    	        	String org = "2";
+    	        	String suborg = "0";
+    	        	DataGrab dg = new DataGrab(sfecItIni,sfecItFin,org,suborg);
+    	        	
+    	        	hbConn.deleteKeys(dg.getOnlyKeys());
+    		        
+    		        mylib.console("Termino proceso Delete GRAB");
+    	        }
+
+        		//Borra datos cargados en HBASE
+    	        if (delOreka) {
+    	        	mylib.console("DELETE Oreka - en HBASE");
+    	        	mylib.console("Fecha Desde: "+sfecItIni);
+    	        	mylib.console("Fecha Hasta: "+sfecItFin);
+    	        	String org = "2";
+    	        	String suborg = "1";
+    	        	DataOreka dg = new DataOreka(sfecItIni,sfecItFin,org,suborg);
+    	        	
+    	        	hbConn.deleteKeys(dg.getOnlyKeys());
+    		        
+    		        mylib.console("Termino proceso Delete OREKA");
+    	        }
+    	        
+        		//Borra datos cargados en HBASE
+    	        if (delc2c) {
+    	        	mylib.console("DELETE C2C - en HBASE");
+    	        	mylib.console("Fecha Desde: "+sfecItIni);
+    	        	mylib.console("Fecha Hasta: "+sfecItFin);
+    	        	String org = "2";
+    	        	String suborg = "2";
+    	        	DataC2C dg = new DataC2C(sfecItIni,sfecItFin,org,suborg);
+    	        	
+    	        	hbConn.deleteKeys(dg.getOnlyKeys());
+    		        
+    		        mylib.console("Termino proceso Delete C2C");
+    	        }
     	        
         		//Borra datos cargados en HBASE
     	        if (delVtr) {
@@ -84,15 +118,14 @@ public class AppHbase {
     	        	mylib.console("Fecha Desde: "+sfecItIni);
     	        	mylib.console("Fecha Hasta: "+sfecItFin);
     	        	String org = "3";
-    	        	String suborg = "1";
+    	        	String suborg = "0";
     	        	DataEcoOper dg = new DataEcoOper(sfecItIni,sfecItFin,org,suborg);
     	        	
     	        	hbConn.deleteKeys(dg.getOnlyKeys());
     		        
     		        mylib.console("Termino proceso Delete VTR");
     	        }
-
-        		
+	        	
         		//Extrae datos de tabla "grabaciones"
     	        if (loadGrab) {
     	        	mylib.console("ETL CLARO - tabla grabaciones");
@@ -148,7 +181,6 @@ public class AppHbase {
     		        
     		        mylib.console("Total de Rows insertadas en HBASE: "+dc.getMapGrab().size());
     	        }
-
         		
         	}
         
