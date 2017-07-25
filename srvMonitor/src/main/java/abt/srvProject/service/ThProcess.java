@@ -98,6 +98,7 @@ public class ThProcess extends Thread{
         	
         		
         		//Pregunta si esta permitido realizar el proceso
+        		//Si Thread DBAccess esta en operacion no se realiza este thread
         		if (gDatos.isSyncMetadata()) {
         		
 	        		//Recupera Lista de Agendas Activas

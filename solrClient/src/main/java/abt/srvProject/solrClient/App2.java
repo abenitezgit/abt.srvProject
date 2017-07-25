@@ -15,8 +15,9 @@ public class App2 {
 	public static void main(String[] args) throws SolrServerException, IOException {
 		// TODO Auto-generated method stub
 
-		String zkHostString = "hwk23.e-contact.cl:2181,hwk21.e-contact.cl:2181,hwk22.e-contact.cl:2181";
+		String zkHostString = "hwk23.e-contact.cl:2181/solr";
 		SolrClient solr = new CloudSolrClient(zkHostString);
+		solr.add("collgrabdata");
 		
 		SolrQuery query = new SolrQuery();
 		query.setRequestHandler("/spellCheckCompRH");

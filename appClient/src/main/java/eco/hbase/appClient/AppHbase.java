@@ -22,9 +22,9 @@ public class AppHbase {
     {
     	try {
     		//parametros de control
-    		boolean loadGrab = true;
-    		boolean loadOreka = false;
-    		boolean loadc2c = true;
+    		boolean loadGrab = false;
+    		boolean loadOreka = true;
+    		boolean loadc2c = false;
     		boolean loadVtr = false;
     		
     		boolean delGrab = false;
@@ -32,8 +32,8 @@ public class AppHbase {
     		boolean delc2c = false;
     		boolean delVtr = false;
     		
-        	String fecini 	= "2016-12-01 00:00:00";
-        	String fecterm 	= "2017-01-01 00:00:00";
+        	String fecini 	= "2017-07-12 00:00:00";
+        	String fecterm 	= "2017-07-13 00:00:00";
     		
     		//Conexion y seteo de HBASE
 	    	//Connect HBAse using Conf Files

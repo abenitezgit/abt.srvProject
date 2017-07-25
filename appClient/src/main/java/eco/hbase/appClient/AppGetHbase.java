@@ -2,17 +2,14 @@ package eco.hbase.appClient;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Iterator;
 
-
+import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.CloudSolrClient;
 import org.apache.solr.client.solrj.impl.CloudSolrServer;
+import org.apache.solr.client.solrj.response.FacetField;
+import org.apache.solr.client.solrj.response.FacetField.Count;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.client.solrj.response.SolrPingResponse;
 import org.apache.solr.common.SolrDocument;
@@ -49,11 +46,39 @@ public class AppGetHbase {
 			//System.exit(0);
 			
 			server.setDefaultCollection("collgrabdata");
-			//SolrQuery solrQuery = new SolrQuery("*.*");
+			SolrQuery solrQuery = new SolrQuery("*.*");
+			solrQuery.addFacetField("org");
+			solrQuery.addFacetField("suborg");
+			
+			QueryResponse response0 = server.query(solrQuery);
+			
+			for (FacetField facetField : response0.getFacetFields()) {
+				
+				if (facetField != null ) {
+					System.out.println("facetField.getName(): "+facetField.getName());
+					System.out.println("facetField.getValues(): "+facetField.getValues().size());
+					
+					for (Count count : facetField.getValues()) {
+						System.out.println("count.getName(): "+count.getName());
+						System.out.println("count.getCount(): "+count.getCount());
+					}
+					//System.out.println("facetField.getValues().get(0): "+facetField.getValues().get(0).getCount());
+				}
+			}
+			
+			System.exit(0);
 			
 			ModifiableSolrParams parameters = buildSolrFilters();
 			
 			QueryResponse response1 = server.query(parameters);
+			
+			for (FacetField facetField : response1.getFacetFields()) {
+				
+				if (facetField != null ) {
+					System.out.println("facetField.getName(): "+facetField.getName());
+					System.out.println("facetField.getValues(): "+facetField.getValues().size());
+				}
+			}
 			
 			//System.out.println("Total keys: "+response1.getResults().size());
 			idKeys = response1.getResults();
@@ -73,6 +98,8 @@ public class AppGetHbase {
     	
     	mylib.console("Total ids: "+ idKeys.getNumFound());
 
+    	
+    	System.exit(0);
     	int reads=0;
     	for (SolrDocument doc: idKeys) {
     		JSONObject jo = new JSONObject(doc);
@@ -113,12 +140,13 @@ public class AppGetHbase {
 	 static public ModifiableSolrParams buildSolrFilters() throws Exception {
 	        ModifiableSolrParams parameters = new ModifiableSolrParams();
 	        parameters.set("q", "*:*");
-	        parameters.set("fq", "fecini:[20161201 TO 20170101] AND org:2 AND suborg:1");
+	        //parameters.set("fq", "fecini:[20161201 TO 20170101] AND org:2 AND suborg:1");
 	        //parameters.set("fl", "ttext, id, ani");
 	        parameters.set("start", 0);
-	        parameters.set("rows", 10000);
+	        parameters.set("rows", 5);
 	        parameters.set("facet", "true");
 	        parameters.set("facet.field", "org");
+	        parameters.set("facet.field", "suborg");
 	        
 	        //mylib.console("Filtro consulta q: "+q);
 	        

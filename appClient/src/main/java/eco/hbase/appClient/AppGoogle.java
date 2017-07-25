@@ -37,7 +37,7 @@ public class AppGoogle {
         
         //localaudio = Thread.currentThread().getContextClassLoader().getResource("/").getPath();
         
-        String localaudio = "/Users/admin/01_20161219_164318_94410985934309__1482176597.15546.wav";
+        String localaudio = "/Users/admin/Documents/paso/QA_01_20161126_111012_94410225388813__1480169412.13064.wav";
 
         File audio = new File(localaudio);
         String inFile = audio.getAbsolutePath();

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry kind="src" output="target/classes" path="src/main/java">
+	<classpathentry kind="src" path="src/main/java">
 		<attributes>
 			<attribute name="optional" value="true"/>
 			<attribute name="maven.pomderived" value="true"/>
@@ -17,12 +17,13 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry combineaccessrules="false" kind="src" path="/srvRutinas"/>
-	<classpathentry kind="src" output="target/test-classes" path="src/test/java">
+	<classpathentry kind="src" path="src/test/java">
 		<attributes>
 			<attribute name="optional" value="true"/>
 			<attribute name="maven.pomderived" value="true"/>
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="lib" path="/Users/admin/Documents/Developer/javaLibraries/javaLibs_Jave/jave-1.0.2/jave-1.0.2.jar"/>
+	<classpathentry kind="lib" path="/Users/admin/Documents/Developer/javaLibraries/common_libs/common_rutinas.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>

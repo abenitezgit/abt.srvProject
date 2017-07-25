@@ -29,6 +29,7 @@
       <url>file://${project.basedir}/../maven-repo/snapshots</url>
     </repository>
 </distributionManagement>
+
   
   
 
@@ -37,6 +38,16 @@
   </properties>
 
   <dependencies>
+  <dependency>
+    <groupId>com.google.cloud</groupId>
+    <artifactId>google-cloud-speech</artifactId>
+    <version>0.17.1-alpha</version>
+</dependency>
+	<dependency>
+	    <groupId>org.apache.solr</groupId>
+	    <artifactId>solr-solrj</artifactId>
+	    <version>5.2.0</version>
+	</dependency>
 
 	<!-- https://mvnrepository.com/artifact/com.microsoft.sqlserver/mssql-jdbc -->
 	<dependency>
